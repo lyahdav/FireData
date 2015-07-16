@@ -1,0 +1,6 @@
+#include "Pods-FireDataTests-Firebase.xcconfig"
+FRAMEWORK_SEARCH_PATHS = ${PODS_FIREDATATESTS_FIREBASE_FRAMEWORK_SEARCH_PATHS}
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
+HEADER_SEARCH_PATHS = "${PODS_ROOT}/Headers/Build" "${PODS_ROOT}/Headers/Build/Firebase" "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/Firebase" "${PODS_ROOT}/Headers/Public/ISO8601DateFormatter" "${PODS_ROOT}/Headers/Public/Kiwi"
+OTHER_LDFLAGS = ${PODS_FIREDATATESTS_FIREBASE_OTHER_LDFLAGS} -ObjC
+PODS_ROOT = ${SRCROOT}

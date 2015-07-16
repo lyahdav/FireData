@@ -73,6 +73,8 @@
  */
 - (void)linkCoreDataEntity:(NSString *)coreDataEntity withFirebase:(Firebase *)firebase;
 
+- (void)linkCoreDataEntity:(NSString *)coreDataEntity withFirebase:(Firebase *)firebase withIndex:(Firebase *)indexFirebase;
+
 /**
  * unlinkCoreDataEntity: is used to remove the link between the Core Data entity and the associated Firebase.
  *

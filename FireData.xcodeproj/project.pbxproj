@@ -22,23 +22,23 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		25231BDEAAE9C525C764B979 /* FirebaseMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 252311621601A4B76D52F307 /* FirebaseMock.m */; };
 		ABBDD08C16FA31DB002D7BE3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBDD08B16FA31DB002D7BE3 /* Foundation.framework */; };
 		ABBDD09116FA31DB002D7BE3 /* FireData.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = ABBDD09016FA31DB002D7BE3 /* FireData.h */; };
 		ABBDD09316FA31DB002D7BE3 /* FireData.m in Sources */ = {isa = PBXBuildFile; fileRef = ABBDD09216FA31DB002D7BE3 /* FireData.m */; };
-		ABBDD09B16FA31DC002D7BE3 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBDD09A16FA31DC002D7BE3 /* SenTestingKit.framework */; };
 		ABBDD09D16FA31DC002D7BE3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBDD09C16FA31DC002D7BE3 /* UIKit.framework */; };
 		ABBDD09E16FA31DC002D7BE3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBDD08B16FA31DB002D7BE3 /* Foundation.framework */; };
-		ABBDD0A116FA31DC002D7BE3 /* libFireData.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBDD08816FA31DB002D7BE3 /* libFireData.a */; };
 		ABBDD0A716FA31DC002D7BE3 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = ABBDD0A516FA31DC002D7BE3 /* InfoPlist.strings */; };
-		ABBDD0AA16FA31DC002D7BE3 /* FireDataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ABBDD0A916FA31DC002D7BE3 /* FireDataTests.m */; };
 		ABBDD0BD16FA34A0002D7BE3 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBDD0BC16FA34A0002D7BE3 /* CoreData.framework */; };
 		ABBDD0C016FA359E002D7BE3 /* NSManagedObject+FireData.m in Sources */ = {isa = PBXBuildFile; fileRef = ABBDD0BF16FA359D002D7BE3 /* NSManagedObject+FireData.m */; };
 		ABBDD0C116FA359E002D7BE3 /* NSManagedObject+FireData.m in Sources */ = {isa = PBXBuildFile; fileRef = ABBDD0BF16FA359D002D7BE3 /* NSManagedObject+FireData.m */; };
-		ABBDD11516FA3891002D7BE3 /* ISO8601DateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = ABBDD0FE16FA3891002D7BE3 /* ISO8601DateFormatter.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		ABBDD11616FA3891002D7BE3 /* ISO8601DateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = ABBDD0FE16FA3891002D7BE3 /* ISO8601DateFormatter.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		ABBDD13416FA392D002D7BE3 /* FireDataISO8601DateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = ABBDD13316FA392D002D7BE3 /* FireDataISO8601DateFormatter.m */; };
 		ABBDD13516FA392D002D7BE3 /* FireDataISO8601DateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = ABBDD13316FA392D002D7BE3 /* FireDataISO8601DateFormatter.m */; };
 		ABBDD13A16FA3C52002D7BE3 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBDD0BC16FA34A0002D7BE3 /* CoreData.framework */; };
+		E11F4FBA7BDC85C39FA9C66C /* libPods-FireDataTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 981A5DC5BDD507A86D33DFE6 /* libPods-FireDataTests.a */; };
+		F86F9232CDE23DFFD36FCE08 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ECBA9EAF6E7C29812C92BDEA /* libPods.a */; };
+		FE17945A1B5834D700FF63BD /* FireDataSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = FE1794591B5834D700FF63BD /* FireDataSpec.m */; };
+		FE17945B1B58402F00FF63BD /* FireData.m in Sources */ = {isa = PBXBuildFile; fileRef = ABBDD09216FA31DB002D7BE3 /* FireData.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,28 +72,29 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		252311621601A4B76D52F307 /* FirebaseMock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FirebaseMock.m; sourceTree = "<group>"; };
+		252316541E7D66555DC5A6D6 /* FirebaseMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FirebaseMock.h; sourceTree = "<group>"; };
+		345B1B46646448A3A3074F8C /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		35EB57860265702938F33491 /* Pods-FireDataTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FireDataTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FireDataTests/Pods-FireDataTests.debug.xcconfig"; sourceTree = "<group>"; };
+		981A5DC5BDD507A86D33DFE6 /* libPods-FireDataTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FireDataTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9EFB7545209483DB95D4816C /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		ABBDD08816FA31DB002D7BE3 /* libFireData.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libFireData.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABBDD08B16FA31DB002D7BE3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		ABBDD08F16FA31DB002D7BE3 /* FireData-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FireData-Prefix.pch"; sourceTree = "<group>"; };
 		ABBDD09016FA31DB002D7BE3 /* FireData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FireData.h; sourceTree = "<group>"; };
 		ABBDD09216FA31DB002D7BE3 /* FireData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FireData.m; sourceTree = "<group>"; };
-		ABBDD09916FA31DC002D7BE3 /* FireDataTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FireDataTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
-		ABBDD09A16FA31DC002D7BE3 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		ABBDD09916FA31DC002D7BE3 /* FireDataTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = FireDataTests.octest; path = FireDataTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABBDD09C16FA31DC002D7BE3 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		ABBDD0A416FA31DC002D7BE3 /* FireDataTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "FireDataTests-Info.plist"; sourceTree = "<group>"; };
 		ABBDD0A616FA31DC002D7BE3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		ABBDD0A816FA31DC002D7BE3 /* FireDataTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FireDataTests.h; sourceTree = "<group>"; };
-		ABBDD0A916FA31DC002D7BE3 /* FireDataTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FireDataTests.m; sourceTree = "<group>"; };
 		ABBDD0BC16FA34A0002D7BE3 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		ABBDD0BE16FA359D002D7BE3 /* NSManagedObject+FireData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSManagedObject+FireData.h"; sourceTree = "<group>"; };
 		ABBDD0BF16FA359D002D7BE3 /* NSManagedObject+FireData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSManagedObject+FireData.m"; sourceTree = "<group>"; };
-		ABBDD0FD16FA3891002D7BE3 /* ISO8601DateFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISO8601DateFormatter.h; sourceTree = "<group>"; };
-		ABBDD0FE16FA3891002D7BE3 /* ISO8601DateFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ISO8601DateFormatter.m; sourceTree = "<group>"; };
-		ABBDD0FF16FA3891002D7BE3 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
-		ABBDD10116FA3891002D7BE3 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
 		ABBDD13216FA392D002D7BE3 /* FireDataISO8601DateFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FireDataISO8601DateFormatter.h; sourceTree = "<group>"; };
 		ABBDD13316FA392D002D7BE3 /* FireDataISO8601DateFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FireDataISO8601DateFormatter.m; sourceTree = "<group>"; };
-		ABBDD15316FA4982002D7BE3 /* Firebase.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Firebase.framework; sourceTree = "<group>"; };
+		ECBA9EAF6E7C29812C92BDEA /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA00FC918A10DBECB5FF9CF4 /* Pods-FireDataTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FireDataTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-FireDataTests/Pods-FireDataTests.release.xcconfig"; sourceTree = "<group>"; };
+		FE1794591B5834D700FF63BD /* FireDataSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FireDataSpec.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +104,7 @@
 			files = (
 				ABBDD0BD16FA34A0002D7BE3 /* CoreData.framework in Frameworks */,
 				ABBDD08C16FA31DB002D7BE3 /* Foundation.framework in Frameworks */,
+				F86F9232CDE23DFFD36FCE08 /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -111,10 +113,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				ABBDD13A16FA3C52002D7BE3 /* CoreData.framework in Frameworks */,
-				ABBDD09B16FA31DC002D7BE3 /* SenTestingKit.framework in Frameworks */,
 				ABBDD09D16FA31DC002D7BE3 /* UIKit.framework in Frameworks */,
 				ABBDD09E16FA31DC002D7BE3 /* Foundation.framework in Frameworks */,
-				ABBDD0A116FA31DC002D7BE3 /* libFireData.a in Frameworks */,
+				E11F4FBA7BDC85C39FA9C66C /* libPods-FireDataTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -126,9 +127,9 @@
 			children = (
 				ABBDD08D16FA31DB002D7BE3 /* FireData */,
 				ABBDD0A216FA31DC002D7BE3 /* FireDataTests */,
-				ABBDD0B716FA348C002D7BE3 /* Vendor */,
 				ABBDD08A16FA31DB002D7BE3 /* Frameworks */,
 				ABBDD08916FA31DB002D7BE3 /* Products */,
+				FAEB708DB43114F9835C92E1 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -146,8 +147,9 @@
 			children = (
 				ABBDD0BC16FA34A0002D7BE3 /* CoreData.framework */,
 				ABBDD08B16FA31DB002D7BE3 /* Foundation.framework */,
-				ABBDD09A16FA31DC002D7BE3 /* SenTestingKit.framework */,
 				ABBDD09C16FA31DC002D7BE3 /* UIKit.framework */,
+				981A5DC5BDD507A86D33DFE6 /* libPods-FireDataTests.a */,
+				ECBA9EAF6E7C29812C92BDEA /* libPods.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -177,9 +179,8 @@
 		ABBDD0A216FA31DC002D7BE3 /* FireDataTests */ = {
 			isa = PBXGroup;
 			children = (
-				ABBDD0A816FA31DC002D7BE3 /* FireDataTests.h */,
-				ABBDD0A916FA31DC002D7BE3 /* FireDataTests.m */,
 				ABBDD0A316FA31DC002D7BE3 /* Supporting Files */,
+				FE1794591B5834D700FF63BD /* FireDataSpec.m */,
 			);
 			path = FireDataTests;
 			sourceTree = "<group>";
@@ -189,36 +190,21 @@
 			children = (
 				ABBDD0A416FA31DC002D7BE3 /* FireDataTests-Info.plist */,
 				ABBDD0A516FA31DC002D7BE3 /* InfoPlist.strings */,
+				252311621601A4B76D52F307 /* FirebaseMock.m */,
+				252316541E7D66555DC5A6D6 /* FirebaseMock.h */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		ABBDD0B716FA348C002D7BE3 /* Vendor */ = {
+		FAEB708DB43114F9835C92E1 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				ABBDD0B816FA348C002D7BE3 /* Firebase */,
-				ABBDD0FB16FA3891002D7BE3 /* iso-8601-date-formatter */,
+				35EB57860265702938F33491 /* Pods-FireDataTests.debug.xcconfig */,
+				FA00FC918A10DBECB5FF9CF4 /* Pods-FireDataTests.release.xcconfig */,
+				345B1B46646448A3A3074F8C /* Pods.debug.xcconfig */,
+				9EFB7545209483DB95D4816C /* Pods.release.xcconfig */,
 			);
-			path = Vendor;
-			sourceTree = "<group>";
-		};
-		ABBDD0B816FA348C002D7BE3 /* Firebase */ = {
-			isa = PBXGroup;
-			children = (
-				ABBDD15316FA4982002D7BE3 /* Firebase.framework */,
-			);
-			path = Firebase;
-			sourceTree = "<group>";
-		};
-		ABBDD0FB16FA3891002D7BE3 /* iso-8601-date-formatter */ = {
-			isa = PBXGroup;
-			children = (
-				ABBDD0FD16FA3891002D7BE3 /* ISO8601DateFormatter.h */,
-				ABBDD0FE16FA3891002D7BE3 /* ISO8601DateFormatter.m */,
-				ABBDD0FF16FA3891002D7BE3 /* LICENSE.txt */,
-				ABBDD10116FA3891002D7BE3 /* README.md */,
-			);
-			path = "iso-8601-date-formatter";
+			name = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -228,10 +214,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = ABBDD0AD16FA31DC002D7BE3 /* Build configuration list for PBXNativeTarget "FireData" */;
 			buildPhases = (
+				821AEAEC38F18A4152205A74 /* Check Pods Manifest.lock */,
 				ABBDD08416FA31DB002D7BE3 /* Sources */,
 				ABBDD08516FA31DB002D7BE3 /* Frameworks */,
 				ABBDD08616FA31DB002D7BE3 /* CopyFiles */,
 				ABBDD13B16FA3FA1002D7BE3 /* Prepare Framework */,
+				CE5AA9F5E584FD79DC8C3524 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -246,10 +234,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = ABBDD0B016FA31DC002D7BE3 /* Build configuration list for PBXNativeTarget "FireDataTests" */;
 			buildPhases = (
+				A771E1A0EB1E9EADA7337B2C /* Check Pods Manifest.lock */,
 				ABBDD09416FA31DC002D7BE3 /* Sources */,
 				ABBDD09516FA31DC002D7BE3 /* Frameworks */,
 				ABBDD09616FA31DC002D7BE3 /* Resources */,
-				ABBDD09716FA31DC002D7BE3 /* ShellScript */,
+				355BA4F8C7B8BAED0301B301 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -259,7 +248,7 @@
 			name = FireDataTests;
 			productName = FireDataTests;
 			productReference = ABBDD09916FA31DC002D7BE3 /* FireDataTests.octest */;
-			productType = "com.apple.product-type.bundle";
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -267,6 +256,7 @@
 		ABBDD08016FA31DB002D7BE3 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastTestingUpgradeCheck = 0640;
 				LastUpgradeCheck = 0460;
 				ORGANIZATIONNAME = "Overcommitted, LLC.";
 			};
@@ -301,18 +291,50 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		ABBDD09716FA31DC002D7BE3 /* ShellScript */ = {
+		355BA4F8C7B8BAED0301B301 /* Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = "Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FireDataTests/Pods-FireDataTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		821AEAEC38F18A4152205A74 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		A771E1A0EB1E9EADA7337B2C /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
 		};
 		ABBDD13B16FA3FA1002D7BE3 /* Prepare Framework */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -341,6 +363,21 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\nset +u\n# Avoid recursively calling this script.\nif [[ $SF_MASTER_SCRIPT_RUNNING ]]\nthen\nexit 0\nfi\nset -u\nexport SF_MASTER_SCRIPT_RUNNING=1\n\nSF_TARGET_NAME=${PROJECT_NAME}\nSF_EXECUTABLE_PATH=\"lib${SF_TARGET_NAME}.a\"\nSF_WRAPPER_NAME=\"${SF_TARGET_NAME}.framework\"\n\n# The following conditionals come from\n# https://github.com/kstenerud/iOS-Universal-Framework\n\nif [[ \"$SDK_NAME\" =~ ([A-Za-z]+) ]]\nthen\nSF_SDK_PLATFORM=${BASH_REMATCH[1]}\nelse\necho \"Could not find platform name from SDK_NAME: $SDK_NAME\"\nexit 1\nfi\n\nif [[ \"$SDK_NAME\" =~ ([0-9]+.*$) ]]\nthen\nSF_SDK_VERSION=${BASH_REMATCH[1]}\nelse\necho \"Could not find sdk version from SDK_NAME: $SDK_NAME\"\nexit 1\nfi\n\nif [[ \"$SF_SDK_PLATFORM\" = \"iphoneos\" ]]\nthen\nSF_OTHER_PLATFORM=iphonesimulator\nelse\nSF_OTHER_PLATFORM=iphoneos\nfi\n\nif [[ \"$BUILT_PRODUCTS_DIR\" =~ (.*)$SF_SDK_PLATFORM$ ]]\nthen\nSF_OTHER_BUILT_PRODUCTS_DIR=\"${BASH_REMATCH[1]}${SF_OTHER_PLATFORM}\"\nelse\necho \"Could not find platform name from build products directory: $BUILT_PRODUCTS_DIR\"\nexit 1\nfi\n\n# Build the other platform.\nxcodebuild -project \"${PROJECT_FILE_PATH}\" -target \"${TARGET_NAME}\" -configuration \"${CONFIGURATION}\" -sdk ${SF_OTHER_PLATFORM}${SF_SDK_VERSION} BUILD_DIR=\"${BUILD_DIR}\" OBJROOT=\"${OBJROOT}\" BUILD_ROOT=\"${BUILD_ROOT}\" SYMROOT=\"${SYMROOT}\" $ACTION\n\n# Smash the two static libraries into one fat binary and store it in the .framework\nlipo -create \"${BUILT_PRODUCTS_DIR}/${SF_EXECUTABLE_PATH}\" \"${SF_OTHER_BUILT_PRODUCTS_DIR}/${SF_EXECUTABLE_PATH}\" -output \"${BUILT_PRODUCTS_DIR}/${SF_WRAPPER_NAME}/Versions/A/${SF_TARGET_NAME}\"\n\n# Copy the binary to the other architecture folder to have a complete framework in both.\ncp -a \"${BUILT_PRODUCTS_DIR}/${SF_WRAPPER_NAME}/Versions/A/${SF_TARGET_NAME}\" \"${SF_OTHER_BUILT_PRODUCTS_DIR}/${SF_WRAPPER_NAME}/Versions/A/${SF_TARGET_NAME}\"\n";
 		};
+		CE5AA9F5E584FD79DC8C3524 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -350,7 +387,6 @@
 			files = (
 				ABBDD09316FA31DB002D7BE3 /* FireData.m in Sources */,
 				ABBDD0C016FA359E002D7BE3 /* NSManagedObject+FireData.m in Sources */,
-				ABBDD11516FA3891002D7BE3 /* ISO8601DateFormatter.m in Sources */,
 				ABBDD13416FA392D002D7BE3 /* FireDataISO8601DateFormatter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -359,10 +395,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ABBDD0AA16FA31DC002D7BE3 /* FireDataTests.m in Sources */,
+				FE17945B1B58402F00FF63BD /* FireData.m in Sources */,
+				FE17945A1B5834D700FF63BD /* FireDataSpec.m in Sources */,
 				ABBDD0C116FA359E002D7BE3 /* NSManagedObject+FireData.m in Sources */,
-				ABBDD11616FA3891002D7BE3 /* ISO8601DateFormatter.m in Sources */,
 				ABBDD13516FA392D002D7BE3 /* FireDataISO8601DateFormatter.m in Sources */,
+				25231BDEAAE9C525C764B979 /* FirebaseMock.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -452,6 +489,7 @@
 		};
 		ABBDD0AE16FA31DC002D7BE3 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 345B1B46646448A3A3074F8C /* Pods.debug.xcconfig */;
 			buildSettings = {
 				DSTROOT = /tmp/FireData.dst;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -460,8 +498,6 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "FireData/FireData-Prefix.pch";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = Headers;
 				SKIP_INSTALL = YES;
@@ -470,6 +506,7 @@
 		};
 		ABBDD0AF16FA31DC002D7BE3 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9EFB7545209483DB95D4816C /* Pods.release.xcconfig */;
 			buildSettings = {
 				DSTROOT = /tmp/FireData.dst;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -478,8 +515,6 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "FireData/FireData-Prefix.pch";
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = Headers;
 				SKIP_INSTALL = YES;
@@ -488,33 +523,23 @@
 		};
 		ABBDD0B116FA31DC002D7BE3 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 35EB57860265702938F33491 /* Pods-FireDataTests.debug.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
-					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
-					"\"$(SRCROOT)/Vendor/Firebase\"",
-				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "FireData/FireData-Prefix.pch";
 				INFOPLIST_FILE = "FireDataTests/FireDataTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Debug;
 		};
 		ABBDD0B216FA31DC002D7BE3 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = FA00FC918A10DBECB5FF9CF4 /* Pods-FireDataTests.release.xcconfig */;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
-					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
-					"\"$(SRCROOT)/Vendor/Firebase\"",
-				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "FireData/FireData-Prefix.pch";
 				INFOPLIST_FILE = "FireDataTests/FireDataTests-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Release;
 		};
@@ -553,6 +578,7 @@
 				ABBDD0AF16FA31DC002D7BE3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		ABBDD0B016FA31DC002D7BE3 /* Build configuration list for PBXNativeTarget "FireDataTests" */ = {
 			isa = XCConfigurationList;
@@ -561,6 +587,7 @@
 				ABBDD0B216FA31DC002D7BE3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		ABBDD13D16FA4376002D7BE3 /* Build configuration list for PBXAggregateTarget "Framework" */ = {
 			isa = XCConfigurationList;
@@ -569,6 +596,7 @@
 				ABBDD13F16FA4376002D7BE3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

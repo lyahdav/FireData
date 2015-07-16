@@ -15,6 +15,7 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
 @property (strong, nonatomic) NSManagedObjectContext *observedManagedObjectContext;
 @property (strong, nonatomic) NSManagedObjectContext *writeManagedObjectContext;
 @property (strong, nonatomic) NSMutableDictionary *linkedEntities;
+@property (strong, nonatomic) NSMutableDictionary *indexEntities;
 @property (copy, nonatomic) fcdm_void_managedobjectcontext writeManagedObjectContextCompletionBlock;
 @end
 
@@ -51,6 +52,7 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
         _coreDataKeyAttribute = @"firebaseKey";
         _coreDataDataAttribute = @"firebaseData";
         _linkedEntities = [[NSMutableDictionary alloc] init];
+        _indexEntities = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -81,6 +83,11 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
 - (void)linkCoreDataEntity:(NSString *)coreDataEntity withFirebase:(Firebase *)firebase
 {
     self.linkedEntities[coreDataEntity] = firebase;
+}
+
+- (void)linkCoreDataEntity:(NSString *)coreDataEntity withFirebase:(Firebase *)firebase withIndex:(Firebase *)indexFirebase {
+    self.linkedEntities[coreDataEntity] = firebase;
+    self.indexEntities[coreDataEntity] = indexFirebase;
 }
 
 - (void)unlinkCoreDataEntity:(NSString *)coreDataEntity
@@ -247,34 +254,77 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
         if (!coreDataEntity) return;
         [self updateCoreDataEntity:coreDataEntity firebaseKey:snapshot.key properties:snapshot.value];
     };
+
+    void (^indexUpdatedBlock)(FDataSnapshot *snapshot) = ^(FDataSnapshot *snapshot) {
+        [[firebase childByAppendingPath:snapshot.key]
+                observeEventType:FEventTypeValue
+                       withBlock:^(FDataSnapshot *innerSnapshot) {
+                           NSString *coreDataEntity = [self coreDataEntityForFirebase:firebase];
+                           if (!coreDataEntity) return;
+                           [self updateCoreDataEntity:coreDataEntity firebaseKey:innerSnapshot.key properties:innerSnapshot.value];
+                       }];
+    };
+
+    NSString *coreDataEntity = [self coreDataEntityForFirebase:firebase];
+    NSAssert(coreDataEntity != nil, @"expected mapping for firebase %@", firebase);
+    Firebase *indexFirebase = self.indexEntities[coreDataEntity];
+    if (indexFirebase == nil) {
+        [self observeFirebase:firebase withBlock:updatedBlock];
+    } else {
+        [self observeFirebase:indexFirebase withBlock:indexUpdatedBlock];
+    }
+}
+
+- (void)observeFirebase:(Firebase *)firebase withBlock:(void (^)(FDataSnapshot *))updatedBlock {
     [firebase observeEventType:FEventTypeChildAdded withBlock:updatedBlock];
     [firebase observeEventType:FEventTypeChildChanged withBlock:updatedBlock];
-    
+
     void (^removedBlock)(FDataSnapshot *snapshot) = ^(FDataSnapshot *snapshot) {
-        NSString *coreDataEntity = [self coreDataEntityForFirebase:firebase];
-        if (!coreDataEntity) return;
-        
-        NSManagedObject *managedObject = [self fetchCoreDataManagedObjectWithEntityName:coreDataEntity firebaseKey:snapshot.key];
-        if (managedObject) {
-            [self.writeManagedObjectContext deleteObject:managedObject];
-            
-            if (self.writeManagedObjectContextCompletionBlock) {
-                self.writeManagedObjectContextCompletionBlock(self.writeManagedObjectContext);
-            }
-        }
-    };
+            [self removeCoreDataEntityForSnapshot:snapshot firebase:firebase];
+        };
     [firebase observeEventType:FEventTypeChildRemoved withBlock:removedBlock];
+}
+
+- (void)removeCoreDataEntityForSnapshot:(FDataSnapshot *)snapshot firebase:(Firebase *)firebase {
+    NSString *coreDataEntity = [self coreDataEntityForFirebase:firebase];
+    NSAssert(coreDataEntity != nil, @"expected mapping for firebase %@", firebase);
+    NSManagedObject *managedObject = [self fetchCoreDataManagedObjectWithEntityName:coreDataEntity firebaseKey:snapshot.key];
+    if (managedObject) {
+        [self.writeManagedObjectContext deleteObject:managedObject];
+
+        if (self.writeManagedObjectContextCompletionBlock) {
+            self.writeManagedObjectContextCompletionBlock(self.writeManagedObjectContext);
+        }
+    }
 }
 
 - (void)updateFirebase:(Firebase *)firebase withManagedObject:(NSManagedObject *)managedObject
 {
+    Firebase *indexFirebase = self.indexEntities[[[managedObject entity] name]];
     NSDictionary *properties = [managedObject firedata_propertiesDictionaryWithCoreDataKeyAttribute:self.coreDataKeyAttribute coreDataDataAttribute:self.coreDataDataAttribute];
-    Firebase *child = [firebase childByAppendingPath:[managedObject valueForKey:self.coreDataKeyAttribute]];
-    NSString *childName = child.key;
-    [child setValue:properties withCompletionBlock:^(NSError *error, Firebase *ref) {
-        if (error) {
-            NSLog(@"Error updating %@: %@", childName, error);
-        }
-    }];
+
+    if (indexFirebase == nil) {
+        Firebase *child = [firebase childByAppendingPath:[managedObject valueForKey:self.coreDataKeyAttribute]];
+        NSString *childName = child.key;
+        [child setValue:properties withCompletionBlock:^(NSError *error, Firebase *ref) {
+            if (error) {
+                NSLog(@"Error updating %@: %@", childName, error);
+            }
+        }];
+    } else {
+        Firebase *indexChild = [indexFirebase childByAppendingPath:[managedObject valueForKey:self.coreDataKeyAttribute]];
+        [indexChild setValue:@YES withCompletionBlock:^(NSError *error, Firebase *ref) {
+            if (error) {
+                NSLog(@"Error updating index %@", error);
+            } else {
+                Firebase *child = [firebase childByAppendingPath:[managedObject valueForKey:self.coreDataKeyAttribute]];
+                [child setValue:properties withCompletionBlock:^(NSError *innerError, Firebase* innerRef) {
+                    if (innerError) {
+                        NSLog(@"Error updating %@", innerError);
+                    }
+                }];
+            }
+        }];
+    }
 }
 @end
