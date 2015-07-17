@@ -42,6 +42,17 @@ SPEC_BEGIN(FireDataSpec)
             [[entityValueNode should] receive:@selector(observeEventType:withBlock:) withArguments:theValue(FEventTypeValue), any()];
             [indexFirebase simulateChange];
         });
+        
+        it(@"posts a notification when core data is updated from Firebase", ^{
+            FirebaseMock *firebaseRoot = [FirebaseMock new];
+            [fireData linkCoreDataEntity:@"Entity" withFirebase:firebaseRoot];
+            [fireData startObserving];
+            
+            
+            [[[NSNotificationCenter defaultCenter] should] receive:@selector(postNotificationName:object:) withArguments:FDCoreDataDidSaveNotification, nil];
+            [NSEntityDescription stub:@selector(insertNewObjectForEntityForName:inManagedObjectContext:)];
+            [firebaseRoot simulateChange];
+        });
 
         it(@"writes to the Firebase node when saving a Core Data entity that is not linked to an index", ^{
             FirebaseMock *firebaseRoot = [FirebaseMock new];
@@ -67,6 +78,7 @@ SPEC_BEGIN(FireDataSpec)
             __block NSManagedObjectContext *mockContext;
             __block NSDictionary *saveNotificationUserInfo;
             __block FirebaseMock *indexChildNode;
+            __block NSManagedObject *mockManagedObject;
 
             beforeEach(^{
                 firebaseRoot = [FirebaseMock new];
@@ -77,7 +89,7 @@ SPEC_BEGIN(FireDataSpec)
                 [fireData observeManagedObjectContext:mockContext];
                 [fireData startObserving];
 
-                NSManagedObject *mockManagedObject = [self mockManagedObjectWithKeyAttribute:fireData.coreDataKeyAttribute];
+                mockManagedObject = [self mockManagedObjectWithKeyAttribute:fireData.coreDataKeyAttribute];
                 saveNotificationUserInfo = @{NSInsertedObjectsKey : [NSSet setWithObject:mockManagedObject]};
 
                 indexChildNode = [FirebaseMock new];
@@ -97,7 +109,19 @@ SPEC_BEGIN(FireDataSpec)
                 [[NSNotificationCenter defaultCenter] postNotificationName:NSManagedObjectContextDidSaveNotification object:mockContext
                                                                   userInfo:saveNotificationUserInfo];
             });
-        });
+            
+            it(@"deletes the index of an entity if the entity is deleted", ^{
+                Firebase *indexChild = [Firebase mock];
+                [indexFirebase stub:@selector(childByAppendingPath:) andReturn:indexChild withArguments:@"1"];
+                
+                [[indexChild should] receive:@selector(removeValue)];
+                
+                NSDictionary *deletedUserInfo = @{NSDeletedObjectsKey : [NSSet setWithObject:mockManagedObject]};
+                [[NSNotificationCenter defaultCenter] postNotificationName:NSManagedObjectContextDidSaveNotification object:mockContext
+                                                                  userInfo:deletedUserInfo];
+            });
+        });        
+
     });
 }
 

@@ -83,7 +83,7 @@
 		ABBDD08F16FA31DB002D7BE3 /* FireData-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FireData-Prefix.pch"; sourceTree = "<group>"; };
 		ABBDD09016FA31DB002D7BE3 /* FireData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FireData.h; sourceTree = "<group>"; };
 		ABBDD09216FA31DB002D7BE3 /* FireData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FireData.m; sourceTree = "<group>"; };
-		ABBDD09916FA31DC002D7BE3 /* FireDataTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = FireDataTests.octest; path = FireDataTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		ABBDD09916FA31DC002D7BE3 /* FireDataTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FireDataTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABBDD09C16FA31DC002D7BE3 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		ABBDD0A416FA31DC002D7BE3 /* FireDataTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "FireDataTests-Info.plist"; sourceTree = "<group>"; };
 		ABBDD0A616FA31DC002D7BE3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -137,7 +137,7 @@
 			isa = PBXGroup;
 			children = (
 				ABBDD08816FA31DB002D7BE3 /* libFireData.a */,
-				ABBDD09916FA31DC002D7BE3 /* FireDataTests.octest */,
+				ABBDD09916FA31DC002D7BE3 /* FireDataTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -247,7 +247,7 @@
 			);
 			name = FireDataTests;
 			productName = FireDataTests;
-			productReference = ABBDD09916FA31DC002D7BE3 /* FireDataTests.octest */;
+			productReference = ABBDD09916FA31DC002D7BE3 /* FireDataTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */

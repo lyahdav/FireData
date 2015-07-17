@@ -10,6 +10,7 @@
 #import "NSManagedObject+FireData.h"
 
 typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context);
+NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification";
 
 @interface FireData ()
 @property (strong, nonatomic) NSManagedObjectContext *observedManagedObjectContext;
@@ -159,6 +160,13 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
     NSSet *deletedObjects = [notification userInfo][NSDeletedObjectsKey];
     for (NSManagedObject *managedObject in deletedObjects) {
         Firebase *firebase = [self firebaseForCoreDataEntity:[[managedObject entity] name]];
+        Firebase *indexFirebase = self.indexEntities[[[managedObject entity] name]];
+                
+        if (indexFirebase) {
+            Firebase *indexChild = [indexFirebase childByAppendingPath:[managedObject valueForKey:self.coreDataKeyAttribute]];
+            [indexChild removeValue];
+        }
+        
         if (firebase) {
             Firebase *child = [firebase childByAppendingPath:[managedObject valueForKey:self.coreDataKeyAttribute]];
             [child removeValue];
@@ -212,6 +220,7 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
     if ([self.writeManagedObjectContext hasChanges] && self.writeManagedObjectContextCompletionBlock) {
         self.writeManagedObjectContextCompletionBlock(self.writeManagedObjectContext);
     }
+    [[NSNotificationCenter defaultCenter] postNotificationName:FDCoreDataDidSaveNotification object:nil];
 }
 
 - (void)deleteCoreDataManagedObjectsThatNoLongerExistInFirebase:(Firebase *)firebase
@@ -281,8 +290,8 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
     [firebase observeEventType:FEventTypeChildChanged withBlock:updatedBlock];
 
     void (^removedBlock)(FDataSnapshot *snapshot) = ^(FDataSnapshot *snapshot) {
-            [self removeCoreDataEntityForSnapshot:snapshot firebase:firebase];
-        };
+        [self removeCoreDataEntityForSnapshot:snapshot firebase:firebase];
+    };
     [firebase observeEventType:FEventTypeChildRemoved withBlock:removedBlock];
 }
 
@@ -296,6 +305,7 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
         if (self.writeManagedObjectContextCompletionBlock) {
             self.writeManagedObjectContextCompletionBlock(self.writeManagedObjectContext);
         }
+        [[NSNotificationCenter defaultCenter] postNotificationName:FDCoreDataDidSaveNotification object:nil];
     }
 }
 
