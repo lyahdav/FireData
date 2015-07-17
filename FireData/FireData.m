@@ -168,8 +168,9 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
     NSMutableSet *managedObjects = [[NSMutableSet alloc] init];
     [managedObjects unionSet:[notification userInfo][NSInsertedObjectsKey]];
     [managedObjects unionSet:[notification userInfo][NSUpdatedObjectsKey]];
-    
-    NSSet *changedObjects = [managedObjects filteredSetUsingPredicate:[NSPredicate predicateWithFormat:@"%K == nil", self.coreDataDataAttribute]];
+
+    // TODO: OK?
+    NSSet *changedObjects = managedObjects;//[managedObjects filteredSetUsingPredicate:[NSPredicate predicateWithFormat:@"%K == nil", self .coreDataDataAttribute]];
     for (NSManagedObject *managedObject in changedObjects) {
         Firebase *firebase = [self firebaseForCoreDataEntity:[[managedObject entity] name]];
         if (firebase) {
@@ -205,7 +206,7 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
         managedObject = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:self.writeManagedObjectContext];
         [managedObject setValue:firebaseKey forKey:self.coreDataKeyAttribute];
     }
-    
+
     [managedObject firedata_setPropertiesForKeysWithDictionary:properties coreDataKeyAttribute:self.coreDataKeyAttribute coreDataDataAttribute:self.coreDataDataAttribute];
     
     if ([self.writeManagedObjectContext hasChanges] && self.writeManagedObjectContextCompletionBlock) {

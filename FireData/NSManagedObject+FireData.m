@@ -94,6 +94,9 @@
                     }
                 }
             } else {
+                if (keyedValues[name] == nil) {
+                    continue;
+                }
                 [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", coreDataKeyAttribute, [keyedValues objectForKey:name]]];
                 NSArray *objects = [self.managedObjectContext executeFetchRequest:fetchRequest error:nil];
                 if ([objects count] == 1) {
@@ -106,9 +109,10 @@
             }
         }
     }
-    
-    if ([[self changedValues] count] > 0) {
-        [self setValue:FirebaseSyncData forKey:coreDataDataAttribute];
-    }
+
+    // TODO: needed?
+//    if ([[self changedValues] count] > 0) {
+//        [self setValue:FirebaseSyncData forKey:coreDataDataAttribute];
+//    }
 }
 @end
