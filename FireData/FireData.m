@@ -26,7 +26,6 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
 - (NSString *)coreDataEntityForFirebase:(Firebase *)firebase;
 - (BOOL)isCoreDataEntityLinked:(NSString *)entity;
 - (NSManagedObject *)fetchCoreDataManagedObjectWithEntityName:(NSString *)entityName firebaseKey:(NSString *)firebaseKey;
-- (void)deleteCoreDataManagedObjectsThatNoLongerExistInFirebase:(Firebase *)firebase;
 @end
 
 @interface FireData (Firebase)
@@ -100,7 +99,6 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
 - (void)startObserving
 {
     [self.linkedEntities enumerateKeysAndObjectsUsingBlock:^(NSString *coreDataEntity, Firebase *firebase, BOOL *stop) {
-        [self deleteCoreDataManagedObjectsThatNoLongerExistInFirebase:firebase];
         [self observeFirebase:firebase];
     }];
     
@@ -176,9 +174,8 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
     NSMutableSet *managedObjects = [[NSMutableSet alloc] init];
     [managedObjects unionSet:[notification userInfo][NSInsertedObjectsKey]];
     [managedObjects unionSet:[notification userInfo][NSUpdatedObjectsKey]];
-
-    // TODO: OK?
-    NSSet *changedObjects = managedObjects;//[managedObjects filteredSetUsingPredicate:[NSPredicate predicateWithFormat:@"%K == nil", self .coreDataDataAttribute]];
+    
+    NSSet *changedObjects = [managedObjects filteredSetUsingPredicate:[NSPredicate predicateWithFormat:@"%K == nil", self.coreDataDataAttribute]];
     for (NSManagedObject *managedObject in changedObjects) {
         Firebase *firebase = [self firebaseForCoreDataEntity:[[managedObject entity] name]];
         if (firebase) {
@@ -190,6 +187,11 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
 - (NSString *)coreDataEntityForFirebase:(Firebase *)firebase
 {
     return [[self.linkedEntities allKeysForObject:firebase] lastObject];
+}
+
+- (NSString *)coreDataEntityForFirebaseIndex:(Firebase *)firebase
+{
+    return [[self.indexEntities allKeysForObject:firebase] lastObject];
 }
 
 - (BOOL)isCoreDataEntityLinked:(NSString *)entity
@@ -221,33 +223,6 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
         self.writeManagedObjectContextCompletionBlock(self.writeManagedObjectContext);
     }
     [[NSNotificationCenter defaultCenter] postNotificationName:FDCoreDataDidSaveNotification object:nil];
-}
-
-- (void)deleteCoreDataManagedObjectsThatNoLongerExistInFirebase:(Firebase *)firebase
-{
-    NSString *coreDataEntity = [self coreDataEntityForFirebase:firebase];
-    if (!coreDataEntity) return;
-    
-    void (^identifierBlock)(FDataSnapshot *snapshot) = ^(FDataSnapshot *snapshot) {
-        NSMutableArray *uniqueIdentifiers = [[NSMutableArray alloc] init];
-        for (FDataSnapshot *child in snapshot.children) {
-            [uniqueIdentifiers addObject:child.key];
-        };
-        
-        NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:coreDataEntity];
-        [fetchRequest setIncludesPropertyValues:NO];
-        [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"NOT (%K IN %@)", self.coreDataKeyAttribute, uniqueIdentifiers]];
-        
-        NSArray *objects = [self.writeManagedObjectContext executeFetchRequest:fetchRequest error:nil];
-        for (NSManagedObject *managedObject in objects) {
-            [self.writeManagedObjectContext deleteObject:managedObject];
-        }
-        
-        if (self.writeManagedObjectContextCompletionBlock) {
-            self.writeManagedObjectContextCompletionBlock(self.writeManagedObjectContext);
-        }
-    };
-    [firebase observeSingleEventOfType:FEventTypeValue withBlock:identifierBlock];
 }
 @end
 
@@ -296,8 +271,11 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
 }
 
 - (void)removeCoreDataEntityForSnapshot:(FDataSnapshot *)snapshot firebase:(Firebase *)firebase {
-    NSString *coreDataEntity = [self coreDataEntityForFirebase:firebase];
-    NSAssert(coreDataEntity != nil, @"expected mapping for firebase %@", firebase);
+    NSString *coreDataEntity = [self coreDataEntityForFirebase:firebase] ?: [self coreDataEntityForFirebaseIndex:firebase];
+    if (!coreDataEntity) {
+        return;
+    }
+    
     NSManagedObject *managedObject = [self fetchCoreDataManagedObjectWithEntityName:coreDataEntity firebaseKey:snapshot.key];
     if (managedObject) {
         [self.writeManagedObjectContext deleteObject:managedObject];

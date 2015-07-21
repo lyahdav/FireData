@@ -110,9 +110,8 @@
         }
     }
 
-    // TODO: needed?
-//    if ([[self changedValues] count] > 0) {
-//        [self setValue:FirebaseSyncData forKey:coreDataDataAttribute];
-//    }
+    if ([[self changedValues] count] > 0) {
+        [self setValue:FirebaseSyncData forKey:coreDataDataAttribute];
+    }
 }
 @end
