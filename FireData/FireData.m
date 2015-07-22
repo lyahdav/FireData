@@ -70,7 +70,7 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
         [notificationCenter removeObserver:self name:NSManagedObjectContextObjectsDidChangeNotification object:self.observedManagedObjectContext];
         [notificationCenter removeObserver:self name:NSManagedObjectContextDidSaveNotification object:self.observedManagedObjectContext];
     }
-    
+
     self.observedManagedObjectContext = nil;
 }
 
@@ -101,7 +101,7 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
     [self.linkedEntities enumerateKeysAndObjectsUsingBlock:^(NSString *coreDataEntity, Firebase *firebase, BOOL *stop) {
         [self observeFirebase:firebase];
     }];
-    
+
     if (self.observedManagedObjectContext) {
         NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
         [notificationCenter addObserver:self selector:@selector(managedObjectContextObjectsDidChange:) name:NSManagedObjectContextObjectsDidChangeNotification object:self.observedManagedObjectContext];
@@ -118,7 +118,7 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
 
 - (void)replaceFirebaseFromCoreData
 {
-    [self.linkedEntities enumerateKeysAndObjectsUsingBlock:^(NSString *coreDataEntity, Firebase *firebase, BOOL *stop) {        
+    [self.linkedEntities enumerateKeysAndObjectsUsingBlock:^(NSString *coreDataEntity, Firebase *firebase, BOOL *stop) {
         NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:coreDataEntity];
         [fetchRequest setFetchBatchSize:25];
         NSError *error;
@@ -142,11 +142,11 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
 
     for (NSManagedObject *managedObject in managedObjects) {
         if (![self isCoreDataEntityLinked:[[managedObject entity] name]]) return;
-        
+
         if (![managedObject primitiveValueForKey:self.coreDataKeyAttribute]) {
             [managedObject setPrimitiveValue:[[self class] firebaseKey] forKey:self.coreDataKeyAttribute];
         }
-        
+
         if (![managedObject changedValues][self.coreDataDataAttribute]) {
             [managedObject setPrimitiveValue:nil forKey:self.coreDataDataAttribute];
         }
@@ -159,22 +159,22 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
     for (NSManagedObject *managedObject in deletedObjects) {
         Firebase *firebase = [self firebaseForCoreDataEntity:[[managedObject entity] name]];
         Firebase *indexFirebase = self.indexEntities[[[managedObject entity] name]];
-                
-        if (indexFirebase) {
-            Firebase *indexChild = [indexFirebase childByAppendingPath:[managedObject valueForKey:self.coreDataKeyAttribute]];
-            [indexChild removeValue];
-        }
-        
+
         if (firebase) {
             Firebase *child = [firebase childByAppendingPath:[managedObject valueForKey:self.coreDataKeyAttribute]];
             [child removeValue];
         }
+
+        if (indexFirebase) {
+            Firebase *indexChild = [indexFirebase childByAppendingPath:[managedObject valueForKey:self.coreDataKeyAttribute]];
+            [indexChild removeValue];
+        }
     };
-    
+
     NSMutableSet *managedObjects = [[NSMutableSet alloc] init];
     [managedObjects unionSet:[notification userInfo][NSInsertedObjectsKey]];
     [managedObjects unionSet:[notification userInfo][NSUpdatedObjectsKey]];
-    
+
     NSSet *changedObjects = [managedObjects filteredSetUsingPredicate:[NSPredicate predicateWithFormat:@"%K == nil", self.coreDataDataAttribute]];
     for (NSManagedObject *managedObject in changedObjects) {
         Firebase *firebase = [self firebaseForCoreDataEntity:[[managedObject entity] name]];
@@ -213,7 +213,7 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
 - (void)updateCoreDataEntity:(NSString *)entityName firebaseKey:(NSString *)firebaseKey properties:(NSDictionary *)properties
 {
     if ((id)properties == [NSNull null]) return;
-    
+
     NSManagedObject *managedObject = [self fetchCoreDataManagedObjectWithEntityName:entityName firebaseKey:firebaseKey];
     if (!managedObject) {
         managedObject = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:self.writeManagedObjectContext];
@@ -221,7 +221,7 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
     }
 
     [managedObject firedata_setPropertiesForKeysWithDictionary:properties coreDataKeyAttribute:self.coreDataKeyAttribute coreDataDataAttribute:self.coreDataDataAttribute];
-    
+
     if ([self.writeManagedObjectContext hasChanges] && self.writeManagedObjectContextCompletionBlock) {
         self.writeManagedObjectContextCompletionBlock(self.writeManagedObjectContext);
     }
@@ -278,7 +278,7 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
     if (!coreDataEntity) {
         return;
     }
-    
+
     NSManagedObject *managedObject = [self fetchCoreDataManagedObjectWithEntityName:coreDataEntity firebaseKey:snapshot.key];
     if (managedObject) {
         [self.writeManagedObjectContext deleteObject:managedObject];
@@ -304,10 +304,11 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
         Firebase *indexChild = [indexFirebase childByAppendingPath:[managedObject valueForKey:self.coreDataKeyAttribute]];
         [indexChild setValue:@YES withCompletionBlock:^(NSError *error, Firebase *ref) {
             NSAssert(!error, @"%@", error);
-            Firebase *child = [firebase childByAppendingPath:[managedObject valueForKey:self.coreDataKeyAttribute]];
-            [child setValue:properties withCompletionBlock:^(NSError *innerError, Firebase* innerRef) {
-                NSAssert(!innerError, @"%@", innerError);
-            }];
+        }];
+
+        Firebase *child = [firebase childByAppendingPath:[managedObject valueForKey:self.coreDataKeyAttribute]];
+        [child setValue:properties withCompletionBlock:^(NSError *error, Firebase *ref) {
+            NSAssert(!error, @"%@", error);
         }];
     }
 }
