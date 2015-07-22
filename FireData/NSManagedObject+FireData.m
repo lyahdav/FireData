@@ -84,7 +84,9 @@
                 NSMutableSet *items = [self mutableSetValueForKey:name];
                 for (NSString *identifier in identifiers) {
                     [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", coreDataKeyAttribute, identifier]];
-                    NSArray *objects = [self.managedObjectContext executeFetchRequest:fetchRequest error:nil];
+                    NSError *error;
+                    NSArray *objects = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+                    NSAssert(!error, @"%@", error);
                     if ([objects count] == 1) {
                         NSManagedObject *managedObject = objects[0];
                         if (![items containsObject:managedObject]) {
@@ -98,7 +100,9 @@
                     continue;
                 }
                 [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", coreDataKeyAttribute, [keyedValues objectForKey:name]]];
-                NSArray *objects = [self.managedObjectContext executeFetchRequest:fetchRequest error:nil];
+                NSError *error;
+                NSArray *objects = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+                NSAssert(!error, @"%@", error);
                 if ([objects count] == 1) {
                     NSManagedObject *managedObject = objects[0];
                     if (![[self valueForKey:name] isEqual:managedObject]) {

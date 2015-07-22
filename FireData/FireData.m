@@ -123,7 +123,9 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
         
         NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:coreDataEntity];
         [fetchRequest setFetchBatchSize:25];
-        NSArray *managedObjects = [self.observedManagedObjectContext executeFetchRequest:fetchRequest error:nil];
+        NSError *error;
+        NSArray *managedObjects = [self.observedManagedObjectContext executeFetchRequest:fetchRequest error:&error];
+        NSAssert(!error, @"%@", error);
         for (NSManagedObject *managedObject in managedObjects) {
             [self updateFirebase:firebase withManagedObject:managedObject];
         };
@@ -204,7 +206,10 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:entityName];
     [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", self.coreDataKeyAttribute, firebaseKey]];
     [fetchRequest setFetchLimit:1];
-    return [[self.writeManagedObjectContext executeFetchRequest:fetchRequest error:nil] lastObject];
+    NSError *error;
+    NSManagedObject *managedObject = [[self.writeManagedObjectContext executeFetchRequest:fetchRequest error:&error] lastObject];
+    NSAssert(!error, @"%@", error);
+    return managedObject;
 }
 
 - (void)updateCoreDataEntity:(NSString *)entityName firebaseKey:(NSString *)firebaseKey properties:(NSDictionary *)properties
@@ -294,25 +299,17 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
 
     if (indexFirebase == nil) {
         Firebase *child = [firebase childByAppendingPath:[managedObject valueForKey:self.coreDataKeyAttribute]];
-        NSString *childName = child.key;
         [child setValue:properties withCompletionBlock:^(NSError *error, Firebase *ref) {
-            if (error) {
-                NSLog(@"Error updating %@: %@", childName, error);
-            }
+            NSAssert(!error, @"%@", error);
         }];
     } else {
         Firebase *indexChild = [indexFirebase childByAppendingPath:[managedObject valueForKey:self.coreDataKeyAttribute]];
         [indexChild setValue:@YES withCompletionBlock:^(NSError *error, Firebase *ref) {
-            if (error) {
-                NSLog(@"Error updating index %@", error);
-            } else {
-                Firebase *child = [firebase childByAppendingPath:[managedObject valueForKey:self.coreDataKeyAttribute]];
-                [child setValue:properties withCompletionBlock:^(NSError *innerError, Firebase* innerRef) {
-                    if (innerError) {
-                        NSLog(@"Error updating %@", innerError);
-                    }
-                }];
-            }
+            NSAssert(!error, @"%@", error);
+            Firebase *child = [firebase childByAppendingPath:[managedObject valueForKey:self.coreDataKeyAttribute]];
+            [child setValue:properties withCompletionBlock:^(NSError *innerError, Firebase* innerRef) {
+                NSAssert(!innerError, @"%@", innerError);
+            }];
         }];
     }
 }
