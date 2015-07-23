@@ -2,6 +2,17 @@
 #import "FireData.h"
 #import "FirebaseMock.h"
 
+@interface MockManagedObject : NSObject
+@property (nonatomic, strong) NSString* firebaseData;
+@property (nonatomic, strong) NSEntityDescription* entity;
+- (NSDictionary *)firedata_propertiesDictionaryWithCoreDataKeyAttribute:(NSString *)coreDataKeyAttribute coreDataDataAttribute:(NSString *)coreDataDataAttribute;
+@end
+@implementation MockManagedObject
+- (NSDictionary *)firedata_propertiesDictionaryWithCoreDataKeyAttribute:(NSString *)coreDataKeyAttribute coreDataDataAttribute:(NSString *)coreDataDataAttribute {
+    return nil;
+}
+@end
+
 SPEC_BEGIN(FireDataSpec)
 
     describe(@"FireData", ^{
@@ -54,22 +65,41 @@ SPEC_BEGIN(FireDataSpec)
             [firebaseRoot simulateChange];
         });
 
-        it(@"writes to the Firebase node when saving a Core Data entity that is not linked to an index", ^{
-            FirebaseMock *firebaseRoot = [FirebaseMock new];
-            [fireData linkCoreDataEntity:@"Entity" withFirebase:firebaseRoot];
+        context(@"when linking a Core Data entity without an index", ^{
+            __block FirebaseMock *firebaseRoot;
+            __block NSManagedObjectContext *mockContext;
 
-            NSManagedObjectContext *mockContext = [NSManagedObjectContext nullMock];
-            [fireData observeManagedObjectContext:mockContext];
-            [fireData startObserving];
+            beforeEach(^{
+                firebaseRoot = [FirebaseMock new];
+                [fireData linkCoreDataEntity:@"Entity" withFirebase:firebaseRoot];
 
-            NSManagedObject *mockManagedObject = [self mockManagedObjectWithKeyAttribute:fireData.coreDataKeyAttribute];
-            NSDictionary *userInfo = @{NSInsertedObjectsKey : [NSSet setWithObject:mockManagedObject]};
+                mockContext = [NSManagedObjectContext nullMock];
+                [fireData observeManagedObjectContext:mockContext];
+                [fireData startObserving];
+            });
 
-            FirebaseMock *childNode = [FirebaseMock new];
-            [[childNode should] receive:@selector(setValue:withCompletionBlock:) withArguments:@{@"key" : @"value"}, any()];
-            [firebaseRoot stub:@selector(childByAppendingPath:) andReturn:childNode withArguments:@"1"];
-            [[NSNotificationCenter defaultCenter] postNotificationName:NSManagedObjectContextDidSaveNotification object:mockContext
-                                                              userInfo:userInfo];
+            it(@"writes to the Firebase node when saving a Core Data entity", ^{
+                MockManagedObject *mockManagedObject = [self mockManagedObjectWithKeyAttribute:fireData.coreDataKeyAttribute];
+                NSDictionary *userInfo = @{NSInsertedObjectsKey : [NSSet setWithObject:mockManagedObject]};
+
+                FirebaseMock *childNode = [FirebaseMock new];
+                [[childNode should] receive:@selector(setValue:withCompletionBlock:) withArguments:@{@"key" : @"value"}, any()];
+                [firebaseRoot stub:@selector(childByAppendingPath:) andReturn:childNode withArguments:@"1"];
+                [[NSNotificationCenter defaultCenter] postNotificationName:NSManagedObjectContextDidSaveNotification object:mockContext
+                                                                  userInfo:userInfo];
+            });
+
+            it(@"does not write managed objects that don't have a data attribute to Firebase", ^{
+                NSManagedObject *mockManagedObject = [self mockManagedObjectWithoutDataAttributeWithKeyAttribute:fireData.coreDataKeyAttribute];
+
+                FirebaseMock *childNode = [FirebaseMock new];
+                [[childNode shouldNot] receive:@selector(setValue:withCompletionBlock:)];
+                [firebaseRoot stub:@selector(childByAppendingPath:) andReturn:childNode withArguments:@"1"];
+
+                NSDictionary *userInfo = @{NSInsertedObjectsKey : [NSSet setWithObject:mockManagedObject]};
+                [[NSNotificationCenter defaultCenter] postNotificationName:NSManagedObjectContextDidSaveNotification object:mockContext
+                                                                  userInfo:userInfo];
+            });
         });
 
         context(@"when linking a Core Data entity with an index", ^{
@@ -78,7 +108,7 @@ SPEC_BEGIN(FireDataSpec)
             __block NSManagedObjectContext *mockContext;
             __block NSDictionary *saveNotificationUserInfo;
             __block FirebaseMock *indexChildNode;
-            __block NSManagedObject *mockManagedObject;
+            __block MockManagedObject *mockManagedObject;
 
             beforeEach(^{
                 firebaseRoot = [FirebaseMock new];
@@ -125,10 +155,11 @@ SPEC_BEGIN(FireDataSpec)
     });
 }
 
-+ (NSManagedObject *)mockManagedObjectWithKeyAttribute:(NSString *)coreDataKeyAttribute {
-    NSManagedObject *mockManagedObject = [NSManagedObject nullMock];
++ (MockManagedObject *)mockManagedObjectWithKeyAttribute:(NSString *)coreDataKeyAttribute {
+    MockManagedObject *mockManagedObject = [MockManagedObject new];
     [mockManagedObject stub:@selector(valueForKey:) andReturn:@"1" withArguments:coreDataKeyAttribute];
     NSEntityDescription *mockEntityDescription = [NSEntityDescription nullMock];
+    [mockManagedObject stub:@selector(firebaseData) andReturn:@"Data"];
     [mockEntityDescription stub:@selector(name) andReturn:@"Entity"];
     [mockManagedObject stub:@selector(entity) andReturn:mockEntityDescription];
     [mockManagedObject stub:@selector(firedata_propertiesDictionaryWithCoreDataKeyAttribute:coreDataDataAttribute:)
@@ -136,5 +167,15 @@ SPEC_BEGIN(FireDataSpec)
     return mockManagedObject;
 }
 
++ (NSManagedObject *)mockManagedObjectWithoutDataAttributeWithKeyAttribute:(NSString *)coreDataKeyAttribute {
+    NSManagedObject *mockManagedObject = [NSManagedObject nullMock];
+    [mockManagedObject stub:@selector(valueForKey:) andReturn:@"1" withArguments:coreDataKeyAttribute];
+    NSEntityDescription *mockEntityDescription = [NSEntityDescription nullMock];
+    [mockEntityDescription stub:@selector(name) andReturn:@"Entity"];
+    [mockManagedObject stub:@selector(entity) andReturn:mockEntityDescription];
+    [mockManagedObject stub:@selector(firedata_propertiesDictionaryWithCoreDataKeyAttribute:coreDataDataAttribute:)
+                  andReturn:@{@"key" : @"value"}];
+    return mockManagedObject;
+}
 
 @end
