@@ -175,7 +175,13 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
     [managedObjects unionSet:[notification userInfo][NSInsertedObjectsKey]];
     [managedObjects unionSet:[notification userInfo][NSUpdatedObjectsKey]];
 
-    NSSet *changedObjects = [managedObjects filteredSetUsingPredicate:[NSPredicate predicateWithFormat:@"%K == nil", self.coreDataDataAttribute]];
+    NSMutableSet *filteredObjects = [[NSMutableSet alloc] init];
+    for (NSManagedObject *managedObject in managedObjects) {
+        if ([managedObject respondsToSelector:NSSelectorFromString(self.coreDataDataAttribute)]) {
+            [filteredObjects addObject:managedObject];
+        }
+    }
+    NSSet *changedObjects = [filteredObjects filteredSetUsingPredicate:[NSPredicate predicateWithFormat:@"%K == nil", self.coreDataDataAttribute]];
     for (NSManagedObject *managedObject in changedObjects) {
         Firebase *firebase = [self firebaseForCoreDataEntity:[[managedObject entity] name]];
         if (firebase) {

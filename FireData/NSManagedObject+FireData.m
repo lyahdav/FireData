@@ -17,18 +17,18 @@
 {
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     FireDataISO8601DateFormatter *dateFormatter = [FireDataISO8601DateFormatter sharedFormatter];
-    
+
     for (id property in [[self entity] properties]) {
         NSString *name = [property name];
         if ([name isEqualToString:coreDataKeyAttribute] || [name isEqualToString:coreDataDataAttribute]) continue;
-        
+
         if ([property isKindOfClass:[NSAttributeDescription class]]) {
             NSAttributeDescription *attributeDescription = (NSAttributeDescription *)property;
             if ([attributeDescription isTransient]) continue;
-            
+
             NSString *name = [attributeDescription name];
             id value = [self valueForKey:name];
-            
+
             NSAttributeType attributeType = [attributeDescription attributeType];
             if ((attributeType == NSDateAttributeType) && ([value isKindOfClass:[NSDate class]]) && (dateFormatter != nil)) {
                 value = [dateFormatter stringFromDate:value];
@@ -37,11 +37,13 @@
         } else if ([property isKindOfClass:[NSRelationshipDescription class]]) {
             NSRelationshipDescription *relationshipDescription = (NSRelationshipDescription *)property;
             NSString *name = [relationshipDescription name];
-            
+
             if ([relationshipDescription isToMany]) {
                 NSMutableArray *items = [[NSMutableArray alloc] init];
                 for (NSManagedObject *managedObject in [self valueForKey:name]) {
-                    [items addObject:[managedObject valueForKey:coreDataKeyAttribute]];
+                    if ([managedObject respondsToSelector:NSSelectorFromString(coreDataKeyAttribute)]) {
+                        [items addObject:[managedObject valueForKey:coreDataKeyAttribute]];
+                    }
                 }
                 [properties setValue:[items sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)] forKey:name];
             } else {
@@ -50,7 +52,7 @@
             }
         }
     }
-    
+
     return [NSDictionary dictionaryWithDictionary:properties];
 }
 
@@ -60,10 +62,10 @@
     for (NSPropertyDescription *propertyDescription in [[self entity] properties]) {
         NSString *name = [propertyDescription name];
         if ([name isEqualToString:coreDataKeyAttribute] || [name isEqualToString:coreDataDataAttribute]) continue;
-        
+
         if ([propertyDescription isKindOfClass:[NSAttributeDescription class]]) {
             id value = [keyedValues objectForKey:name];
-            
+
             NSAttributeType attributeType = [(NSAttributeDescription *)propertyDescription attributeType];
             if ((attributeType == NSStringAttributeType) && ([value isKindOfClass:[NSNumber class]])) {
                 value = [value stringValue];
@@ -74,11 +76,11 @@
             } else if ((attributeType == NSDateAttributeType) && ([value isKindOfClass:[NSString class]]) && (dateFormatter != nil)) {
                 value = [dateFormatter dateFromString:value];
             }
-            
+
             [self setValue:value forKey:name];
         } else if ([propertyDescription isKindOfClass:[NSRelationshipDescription class]]) {
             NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[[(NSRelationshipDescription *)propertyDescription destinationEntity] name]];
-            
+
             if ([(NSRelationshipDescription *)propertyDescription isToMany]) {
                 NSArray *identifiers = [keyedValues objectForKey:name];
                 NSMutableSet *items = [self mutableSetValueForKey:name];
