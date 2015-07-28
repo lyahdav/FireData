@@ -111,17 +111,48 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
     [firebases makeObjectsPerformSelector:@selector(removeAllObservers)];
 }
 
-- (void)replaceFirebaseFromCoreData
+- (void)updateFirebaseFromCoreData
+{
+    [self enumerateLinkedEntitiesUsingBlock:^(NSArray *managedObjects, Firebase *firebase) {
+        for (NSManagedObject *managedObject in managedObjects) {
+            [self updateFirebase:firebase withManagedObject:managedObject];
+        };
+    }];
+}
+
+- (void)addMissingFirebaseKeyToCoreDataObjects
+{
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == nil", self.coreDataKeyAttribute];
+    
+    [self enumerateLinkedEntitiesWithPredicate:predicate usingBlock:^(NSArray *managedObjects, Firebase *firebase) {
+        for (NSManagedObject *managedObject in managedObjects) {
+            if ([managedObject valueForKey:self.coreDataKeyAttribute] == nil) {
+                [managedObject setValue:[[self class] firebaseKey] forKey:self.coreDataKeyAttribute];
+            }
+        };
+        
+        if ([self.observedManagedObjectContext hasChanges]) {
+            [self.observedManagedObjectContext save:nil];
+        }
+    }];
+}
+
+- (void)enumerateLinkedEntitiesUsingBlock:(void (^)(NSArray *, Firebase *))block
+{
+    [self enumerateLinkedEntitiesWithPredicate:nil usingBlock:block];
+}
+
+- (void)enumerateLinkedEntitiesWithPredicate:(NSPredicate *)predicate usingBlock:(void (^)(NSArray *, Firebase *))block
 {
     [self.linkedEntities enumerateKeysAndObjectsUsingBlock:^(NSString *coreDataEntity, Firebase *firebase, BOOL *stop) {
         NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:coreDataEntity];
+        fetchRequest.predicate = predicate;
         [fetchRequest setFetchBatchSize:25];
         NSError *error;
         NSArray *managedObjects = [self.observedManagedObjectContext executeFetchRequest:fetchRequest error:&error];
         NSAssert(!error, @"%@", error);
-        for (NSManagedObject *managedObject in managedObjects) {
-            [self updateFirebase:firebase withManagedObject:managedObject];
-        };
+        
+        block(managedObjects, firebase);
     }];
 }
 

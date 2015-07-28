@@ -52,6 +52,16 @@ extern NSString *const FDCoreDataDidSaveNotification;
 + (NSString *)firebaseKey;
 
 /**
+ * Convert sync ID values from Firebase to Core Data
+ */
++ (NSString *)coreDataSyncValueForFirebaseSyncValue:(NSString *)firebaseSyncValue;
+
+/**
+ * Convert sync ID values from Core Data to Firebase
+ */
++ (NSString *)firebaseSyncValueFromCoreDataSyncValue:(NSString *)coreDataSyncValue;
+
+/**
  * observeManagedObjectContext: is used to listen for data changes for the specified managed object context.
  *
  * @param managedObjectContext The managed object context to listen for changes on.
@@ -94,18 +104,13 @@ extern NSString *const FDCoreDataDidSaveNotification;
 - (void)stopObserving;
 
 /**
- * Replace all Firebase data with values from Core Data.
+ * Update Firebase data with values from Core Data.
  */
-- (void)replaceFirebaseFromCoreData;
+- (void)updateFirebaseFromCoreData;
 
 /**
- * Convert sync ID values from Firebase to Core Data
- */
-+ (NSString *)coreDataSyncValueForFirebaseSyncValue:(NSString *)firebaseSyncValue;
-
-/**
- * Convert sync ID values from Core Data to Firebase
- */
-+ (NSString *)firebaseSyncValueFromCoreDataSyncValue:(NSString *)coreDataSyncValue;
+* Adds randomly-generated firebase keys to all linked entities that don't have a key yet.
+*/
+- (void)addMissingFirebaseKeyToCoreDataObjects;
 
 @end
