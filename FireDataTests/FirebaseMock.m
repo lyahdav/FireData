@@ -14,12 +14,16 @@
     return 1;
 }
 
-- (void)simulateChange {
+- (void)simulateChangeForKey:(NSString *)key {
     if (self.observeBlock) {
         FDataSnapshot *snapshot = [FDataSnapshot nullMock];
-        [snapshot stub:@selector(key) andReturn:@"1"];
+        [snapshot stub:@selector(key) andReturn:key];
         self.observeBlock(snapshot);
     }
+}
+
+- (void)simulateChange {
+    [self simulateChangeForKey:@"1"];
 }
 
 - (void)setValue:(id)value withCompletionBlock:(void (^)(NSError *error, Firebase *ref))block {

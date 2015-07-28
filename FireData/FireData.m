@@ -18,17 +18,12 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
 @property (strong, nonatomic) NSMutableDictionary *linkedEntities;
 @property (strong, nonatomic) NSMutableDictionary *indexEntities;
 @property (copy, nonatomic) fcdm_void_managedobjectcontext writeManagedObjectContextCompletionBlock;
-@end
 
-@interface FireData (CoreData)
 - (void)managedObjectContextObjectsDidChange:(NSNotification *)notification;
 - (void)managedObjectContextDidSave:(NSNotification *)notification;
 - (NSString *)coreDataEntityForFirebase:(Firebase *)firebase;
 - (BOOL)isCoreDataEntityLinked:(NSString *)entity;
 - (NSManagedObject *)fetchCoreDataManagedObjectWithEntityName:(NSString *)entityName firebaseKey:(NSString *)firebaseKey;
-@end
-
-@interface FireData (Firebase)
 - (Firebase *)firebaseForCoreDataEntity:(NSString *)entity;
 - (void)observeFirebase:(Firebase *)firebase;
 - (void)updateFirebase:(Firebase *)firebase withManagedObject:(NSManagedObject *)managedObject;
@@ -130,10 +125,6 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
     }];
 }
 
-
-@end
-
-@implementation FireData (CoreData)
 - (void)managedObjectContextObjectsDidChange:(NSNotification *)notification
 {
     NSMutableSet *managedObjects = [[NSMutableSet alloc] init];
@@ -161,12 +152,12 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
         Firebase *indexFirebase = self.indexEntities[[[managedObject entity] name]];
 
         if (firebase) {
-            Firebase *child = [firebase childByAppendingPath:[managedObject valueForKey:self.coreDataKeyAttribute]];
+            Firebase *child = [firebase childByAppendingPath:[self firebaseSyncValueForManagedObject:managedObject]];
             [child removeValue];
         }
 
         if (indexFirebase) {
-            Firebase *indexChild = [indexFirebase childByAppendingPath:[managedObject valueForKey:self.coreDataKeyAttribute]];
+            Firebase *indexChild = [indexFirebase childByAppendingPath:[self firebaseSyncValueForManagedObject:managedObject]];
             [indexChild removeValue];
         }
     };
@@ -207,8 +198,9 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
 
 - (NSManagedObject *)fetchCoreDataManagedObjectWithEntityName:(NSString *)entityName firebaseKey:(NSString *)firebaseKey
 {
+    NSString *coreDataKey = [FireData coreDataSyncValueForFirebaseSyncValue:firebaseKey];
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:entityName];
-    [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", self.coreDataKeyAttribute, firebaseKey]];
+    [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", self.coreDataKeyAttribute, coreDataKey]];
     [fetchRequest setFetchLimit:1];
     NSError *error;
     NSManagedObject *managedObject = [[self.writeManagedObjectContext executeFetchRequest:fetchRequest error:&error] lastObject];
@@ -223,7 +215,7 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
     NSManagedObject *managedObject = [self fetchCoreDataManagedObjectWithEntityName:entityName firebaseKey:firebaseKey];
     if (!managedObject) {
         managedObject = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:self.writeManagedObjectContext];
-        [managedObject setValue:firebaseKey forKey:self.coreDataKeyAttribute];
+        [managedObject setValue:[FireData coreDataSyncValueForFirebaseSyncValue:firebaseKey] forKey:self.coreDataKeyAttribute];
     }
 
     [managedObject firedata_setPropertiesForKeysWithDictionary:properties coreDataKeyAttribute:self.coreDataKeyAttribute coreDataDataAttribute:self.coreDataDataAttribute];
@@ -233,9 +225,7 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
     }
     [[NSNotificationCenter defaultCenter] postNotificationName:FDCoreDataDidSaveNotification object:nil];
 }
-@end
 
-@implementation FireData (Firebase)
 - (Firebase *)firebaseForCoreDataEntity:(NSString *)entity
 {
     return self.linkedEntities[entity];
@@ -302,20 +292,34 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
     NSDictionary *properties = [managedObject firedata_propertiesDictionaryWithCoreDataKeyAttribute:self.coreDataKeyAttribute coreDataDataAttribute:self.coreDataDataAttribute];
 
     if (indexFirebase == nil) {
-        Firebase *child = [firebase childByAppendingPath:[managedObject valueForKey:self.coreDataKeyAttribute]];
+        Firebase *child = [firebase childByAppendingPath:[self firebaseSyncValueForManagedObject:managedObject]];
         [child setValue:properties withCompletionBlock:^(NSError *error, Firebase *ref) {
             NSAssert(!error, @"%@", error);
         }];
     } else {
-        Firebase *indexChild = [indexFirebase childByAppendingPath:[managedObject valueForKey:self.coreDataKeyAttribute]];
+        Firebase *indexChild = [indexFirebase childByAppendingPath:[self firebaseSyncValueForManagedObject:managedObject]];
         [indexChild setValue:@YES withCompletionBlock:^(NSError *error, Firebase *ref) {
             NSAssert(!error, @"%@", error);
         }];
 
-        Firebase *child = [firebase childByAppendingPath:[managedObject valueForKey:self.coreDataKeyAttribute]];
+        Firebase *child = [firebase childByAppendingPath:[self firebaseSyncValueForManagedObject:managedObject]];
         [child setValue:properties withCompletionBlock:^(NSError *error, Firebase *ref) {
             NSAssert(!error, @"%@", error);
         }];
     }
 }
+
+- (NSString *)firebaseSyncValueForManagedObject:(NSManagedObject *)managedObject {
+    NSString *syncValue = [managedObject valueForKey:self.coreDataKeyAttribute];
+    return [FireData firebaseSyncValueFromCoreDataSyncValue:syncValue];
+}
+
++ (NSString *)firebaseSyncValueFromCoreDataSyncValue:(NSString *)coreDataSyncValue {
+    return [coreDataSyncValue stringByReplacingOccurrencesOfString:@"." withString:@"_@@_"];
+}
+
++ (NSString *)coreDataSyncValueForFirebaseSyncValue:(NSString *)firebaseSyncValue {
+    return [firebaseSyncValue stringByReplacingOccurrencesOfString:@"_@@_" withString:@"."];
+}
+
 @end

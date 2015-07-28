@@ -98,4 +98,14 @@ extern NSString *const FDCoreDataDidSaveNotification;
  */
 - (void)replaceFirebaseFromCoreData;
 
+/**
+ * Convert sync ID values from Firebase to Core Data
+ */
++ (NSString *)coreDataSyncValueForFirebaseSyncValue:(NSString *)firebaseSyncValue;
+
+/**
+ * Convert sync ID values from Core Data to Firebase
+ */
++ (NSString *)firebaseSyncValueFromCoreDataSyncValue:(NSString *)coreDataSyncValue;
+
 @end

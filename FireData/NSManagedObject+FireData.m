@@ -8,6 +8,7 @@
 
 #import "NSManagedObject+FireData.h"
 #import "FireDataISO8601DateFormatter.h"
+#import "FireData.h"
 
 #define FirebaseSyncData [[NSUUID UUID] UUIDString]
 
@@ -42,13 +43,13 @@
                 NSMutableArray *items = [[NSMutableArray alloc] init];
                 for (NSManagedObject *managedObject in [self valueForKey:name]) {
                     if ([managedObject respondsToSelector:NSSelectorFromString(coreDataKeyAttribute)]) {
-                        [items addObject:[managedObject valueForKey:coreDataKeyAttribute]];
+                        [items addObject:[FireData firebaseSyncValueFromCoreDataSyncValue:[managedObject valueForKey:coreDataKeyAttribute]]];
                     }
                 }
                 [properties setValue:[items sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)] forKey:name];
             } else {
                 NSManagedObject *managedObject = [self valueForKey:name];
-                [properties setValue:[managedObject valueForKey:coreDataKeyAttribute] forKey:name];
+                [properties setValue:[FireData firebaseSyncValueFromCoreDataSyncValue:[managedObject valueForKey:coreDataKeyAttribute]] forKey:name];
             }
         }
     }
@@ -85,7 +86,7 @@
                 NSArray *identifiers = [keyedValues objectForKey:name];
                 NSMutableSet *items = [self mutableSetValueForKey:name];
                 for (NSString *identifier in identifiers) {
-                    [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", coreDataKeyAttribute, identifier]];
+                    [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", coreDataKeyAttribute, [FireData coreDataSyncValueForFirebaseSyncValue:identifier]]];
                     NSError *error;
                     NSArray *objects = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
                     NSAssert(!error, @"%@", error);
@@ -101,7 +102,7 @@
                 if (keyedValues[name] == nil) {
                     continue;
                 }
-                [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", coreDataKeyAttribute, [keyedValues objectForKey:name]]];
+                [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", coreDataKeyAttribute, [FireData coreDataSyncValueForFirebaseSyncValue:[keyedValues objectForKey:name]]]];
                 NSError *error;
                 NSArray *objects = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
                 NSAssert(!error, @"%@", error);

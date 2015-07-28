@@ -3,4 +3,5 @@
 
 @interface FirebaseMock : Firebase
 - (void)simulateChange;
+- (void)simulateChangeForKey:(NSString *)key;
 @end
