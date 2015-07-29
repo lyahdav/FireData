@@ -96,7 +96,7 @@
                 }
             } else {
                 if (value != nil || coreDataValue != nil) {
-                    hasValueChanged = YES;
+                    hasValueChanged = ![value isEqual:coreDataValue];
                 }
             }
 
