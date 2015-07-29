@@ -253,8 +253,8 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
 
     if ([self.writeManagedObjectContext hasChanges] && self.writeManagedObjectContextCompletionBlock) {
         self.writeManagedObjectContextCompletionBlock(self.writeManagedObjectContext);
+        [[NSNotificationCenter defaultCenter] postNotificationName:FDCoreDataDidSaveNotification object:nil];
     }
-    [[NSNotificationCenter defaultCenter] postNotificationName:FDCoreDataDidSaveNotification object:nil];
 }
 
 - (Firebase *)firebaseForCoreDataEntity:(NSString *)entity
@@ -312,8 +312,8 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
 
         if (self.writeManagedObjectContextCompletionBlock) {
             self.writeManagedObjectContextCompletionBlock(self.writeManagedObjectContext);
+            [[NSNotificationCenter defaultCenter] postNotificationName:FDCoreDataDidSaveNotification object:nil];
         }
-        [[NSNotificationCenter defaultCenter] postNotificationName:FDCoreDataDidSaveNotification object:nil];
     }
 }
 

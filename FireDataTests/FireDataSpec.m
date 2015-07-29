@@ -92,6 +92,10 @@ SPEC_BEGIN(FireDataSpec)
             [fireData linkCoreDataEntity:@"Entity" withFirebase:firebaseRoot];
             [fireData startObserving];
             
+            NSManagedObjectContext *mockContext = [NSManagedObjectContext nullMock];
+            [mockContext stub:@selector(hasChanges) andReturn:theValue(YES)];
+            [fireData setWriteManagedObjectContext:mockContext withCompletionBlock:^(NSManagedObjectContext *error) {}];
+            
             [[[NSNotificationCenter defaultCenter] should] receive:@selector(postNotificationName:object:) withArguments:FDCoreDataDidSaveNotification, nil];
             [NSEntityDescription stub:@selector(insertNewObjectForEntityForName:inManagedObjectContext:)];
             [firebaseRoot simulateChange];

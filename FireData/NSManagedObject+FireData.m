@@ -66,19 +66,43 @@
 
         if ([propertyDescription isKindOfClass:[NSAttributeDescription class]]) {
             id value = [keyedValues objectForKey:name];
+            id coreDataValue = [self valueForKey:name];
+            BOOL hasValueChanged = NO;
 
             NSAttributeType attributeType = [(NSAttributeDescription *)propertyDescription attributeType];
             if ((attributeType == NSStringAttributeType) && ([value isKindOfClass:[NSNumber class]])) {
                 value = [value stringValue];
+                if (![coreDataValue isEqualToString:value]) {
+                    hasValueChanged = YES;
+                }
             } else if (((attributeType == NSInteger16AttributeType) || (attributeType == NSInteger32AttributeType) || (attributeType == NSInteger64AttributeType) || (attributeType == NSBooleanAttributeType)) && ([value isKindOfClass:[NSString class]])) {
                 value = [NSNumber numberWithInteger:[value integerValue]];
+                if (![coreDataValue isEqualToNumber:value]) {
+                    hasValueChanged = YES;
+                }
             } else if ((attributeType == NSFloatAttributeType) && ([value isKindOfClass:[NSString class]])) {
                 value = [NSNumber numberWithDouble:[value doubleValue]];
+                if (![coreDataValue isEqualToNumber:value]) {
+                    hasValueChanged = YES;
+                }
             } else if ((attributeType == NSDateAttributeType) && ([value isKindOfClass:[NSString class]]) && (dateFormatter != nil)) {
                 value = [dateFormatter dateFromString:value];
+                if ((NSInteger)[coreDataValue timeIntervalSinceReferenceDate] != (NSInteger)[value timeIntervalSinceReferenceDate]) {
+                    hasValueChanged = YES;
+                }
+            } else if ((attributeType == NSStringAttributeType) && ([value isKindOfClass:[NSString class]])) {
+                if (![coreDataValue isEqualToString:value]) {
+                    hasValueChanged = YES;
+                }
+            } else {
+                if (value != nil || coreDataValue != nil) {
+                    hasValueChanged = YES;
+                }
             }
 
-            [self setValue:value forKey:name];
+            if (hasValueChanged) {
+                [self setValue:value forKey:name];
+            }
         } else if ([propertyDescription isKindOfClass:[NSRelationshipDescription class]]) {
             NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[[(NSRelationshipDescription *)propertyDescription destinationEntity] name]];
 
