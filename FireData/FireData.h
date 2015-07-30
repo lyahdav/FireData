@@ -33,80 +33,82 @@ extern NSString *const FDCoreDataDidSaveNotification;
 @interface FireData : NSObject
 
 /**
- * Set this property to the Core Data unique key attribute used by Firebase.
- * @default firebaseKey
- * @return The Core Data unique key attribute
- */
+* Set this property to the Core Data unique key attribute used by Firebase.
+* @default firebaseKey
+* @return The Core Data unique key attribute
+*/
 @property (copy, nonatomic) NSString *coreDataKeyAttribute;
 
 /**
- * Set this property to the Core Data data attribute used by Firebase.
- * @default firebaseData
- * @return The Core Data data attribute
- */
+* Set this property to the Core Data data attribute used by Firebase.
+* @default firebaseData
+* @return The Core Data data attribute
+*/
 @property (copy, nonatomic) NSString *coreDataDataAttribute;
 
 /**
- * @return A new unique key
- */
+* @return A new unique key
+*/
 + (NSString *)firebaseKey;
 
 /**
- * Convert sync ID values from Firebase to Core Data
- */
+* Convert sync ID values from Firebase to Core Data
+*/
 + (NSString *)coreDataSyncValueForFirebaseSyncValue:(NSString *)firebaseSyncValue;
 
 /**
- * Convert sync ID values from Core Data to Firebase
- */
+* Convert sync ID values from Core Data to Firebase
+*/
 + (NSString *)firebaseSyncValueFromCoreDataSyncValue:(NSString *)coreDataSyncValue;
 
 /**
- * observeManagedObjectContext: is used to listen for data changes for the specified managed object context.
- *
- * @param managedObjectContext The managed object context to listen for changes on.
- */
+* observeManagedObjectContext: is used to listen for data changes for the specified managed object context.
+*
+* @param managedObjectContext The managed object context to listen for changes on.
+*/
 - (void)observeManagedObjectContext:(NSManagedObjectContext *)managedObjectContext;
 
 /**
- * setWriteManagedObjectContext:withCompletionBlock: is used to write changes from Firebase to the specified managed object context.
- *
- * @param managedObjectContext The managed object context to write changes to.
- * @param block The block that should be called to save changes written to the managed object context.
- */
+* setWriteManagedObjectContext:withCompletionBlock: is used to write changes from Firebase to the specified managed object context.
+*
+* @param managedObjectContext The managed object context to write changes to.
+* @param block The block that should be called to save changes written to the managed object context.
+*/
 - (void)setWriteManagedObjectContext:(NSManagedObjectContext *)writeManagedObjectContext withCompletionBlock:(void (^)(NSManagedObjectContext *error))block;
 
 /**
- * linkCoreDataEntity:withFirebase: is used to specify which Core Data entity to synchronize changes with the specified Firebase.
- *
- * @param coreDataEntity The Core Data entity name to listen for changes to.
- * @param firebase The Firebase reference to listen for changes to.
- */
+* linkCoreDataEntity:withFirebase: is used to specify which Core Data entity to synchronize changes with the specified Firebase.
+*
+* @param coreDataEntity The Core Data entity name to listen for changes to.
+* @param firebase The Firebase reference to listen for changes to.
+*/
 - (void)linkCoreDataEntity:(NSString *)coreDataEntity withFirebase:(Firebase *)firebase;
 
 - (void)linkCoreDataEntity:(NSString *)coreDataEntity withFirebase:(Firebase *)firebase withIndex:(Firebase *)indexFirebase;
 
 /**
- * unlinkCoreDataEntity: is used to remove the link between the Core Data entity and the associated Firebase.
- *
- * @param coreDataEntity The Core Data entity name to unlink.
- */
+* unlinkCoreDataEntity: is used to remove the link between the Core Data entity and the associated Firebase.
+*
+* @param coreDataEntity The Core Data entity name to unlink.
+*/
 - (void)unlinkCoreDataEntity:(NSString *)coreDataEntity;
 
 /**
- * Starts observing changes between Core Data and Firebase.
- */
+* Starts observing changes between Core Data and Firebase.
+*/
 - (void)startObserving;
 
 /**
- * Stops observing changes between Core Data and Firebase.
- */
+* Stops observing changes between Core Data and Firebase.
+*/
 - (void)stopObserving;
 
 /**
- * Update Firebase data with values from Core Data.
- */
-- (void)updateFirebaseFromCoreData;
+* Upload Core Data objects that are not already in Firebase.
+*
+* @param snapshot a snapshot of Firebase data. This is used to determine which Core Data objects should be uploaded.
+*/
+- (void)uploadMissingCoreDataObjectsToFirebase:(FDataSnapshot *)snapshot;
 
 /**
 * Adds randomly-generated firebase keys to all linked entities that don't have a key yet.

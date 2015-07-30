@@ -111,11 +111,17 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
     [firebases makeObjectsPerformSelector:@selector(removeAllObservers)];
 }
 
-- (void)updateFirebaseFromCoreData
+- (void)uploadMissingCoreDataObjectsToFirebase:(FDataSnapshot *)snapshot
 {
     [self enumerateLinkedEntitiesUsingBlock:^(NSArray *managedObjects, Firebase *firebase) {
         for (NSManagedObject *managedObject in managedObjects) {
-            [self updateFirebase:firebase withManagedObject:managedObject];
+            NSString *syncID = [self firebaseSyncValueForManagedObject:managedObject];
+            NSString *entityName = [[NSURL URLWithString:firebase.description] lastPathComponent];
+            NSString *childPath = [NSString stringWithFormat:@"%@/%@", entityName, syncID];
+
+            if (![snapshot hasChild:childPath]) {
+                [self updateFirebase:firebase withManagedObject:managedObject];
+            }
         };
     }];
 }
@@ -123,14 +129,14 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
 - (void)addMissingFirebaseKeyToCoreDataObjects
 {
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K == nil", self.coreDataKeyAttribute];
-    
+
     [self enumerateLinkedEntitiesWithPredicate:predicate usingBlock:^(NSArray *managedObjects, Firebase *firebase) {
         for (NSManagedObject *managedObject in managedObjects) {
             if ([managedObject valueForKey:self.coreDataKeyAttribute] == nil) {
                 [managedObject setValue:[[self class] firebaseKey] forKey:self.coreDataKeyAttribute];
             }
         };
-        
+
         if ([self.observedManagedObjectContext hasChanges]) {
             [self.observedManagedObjectContext save:nil];
         }
@@ -151,7 +157,7 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
         NSError *error;
         NSArray *managedObjects = [self.observedManagedObjectContext executeFetchRequest:fetchRequest error:&error];
         NSAssert(!error, @"%@", error);
-        
+
         block(managedObjects, firebase);
     }];
 }
