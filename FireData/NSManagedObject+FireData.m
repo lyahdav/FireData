@@ -40,13 +40,13 @@
             NSString *name = [relationshipDescription name];
 
             if ([relationshipDescription isToMany]) {
-                NSMutableArray *items = [[NSMutableArray alloc] init];
+                NSMutableDictionary *items = [NSMutableDictionary new];
                 for (NSManagedObject *managedObject in [self valueForKey:name]) {
                     if ([managedObject respondsToSelector:NSSelectorFromString(coreDataKeyAttribute)]) {
-                        [items addObject:[FireData firebaseSyncValueFromCoreDataSyncValue:[managedObject valueForKey:coreDataKeyAttribute]]];
+                        [items setObject:@true forKey:[FireData firebaseSyncValueFromCoreDataSyncValue:[managedObject valueForKey:coreDataKeyAttribute]]];
                     }
                 }
-                [properties setValue:[items sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)] forKey:name];
+                [properties setValue:items forKey:name];
             } else {
                 NSManagedObject *managedObject = [self valueForKey:name];
                 [properties setValue:[FireData firebaseSyncValueFromCoreDataSyncValue:[managedObject valueForKey:coreDataKeyAttribute]] forKey:name];
@@ -107,7 +107,7 @@
             NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[[(NSRelationshipDescription *)propertyDescription destinationEntity] name]];
 
             if ([(NSRelationshipDescription *)propertyDescription isToMany]) {
-                NSArray *identifiers = [keyedValues objectForKey:name];
+                NSArray *identifiers = [[keyedValues objectForKey:name] allKeys];
                 NSMutableSet *items = [self mutableSetValueForKey:name];
                 for (NSString *identifier in identifiers) {
                     [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", coreDataKeyAttribute, [FireData coreDataSyncValueForFirebaseSyncValue:identifier]]];
