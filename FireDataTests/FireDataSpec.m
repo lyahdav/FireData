@@ -20,6 +20,9 @@ SPEC_BEGIN(FireDataSpec)
 
         beforeEach(^{
             fireData = [FireData new];
+
+            NSManagedObjectContext *mockContext = [self mockContext];
+            [fireData setWriteManagedObjectContext:mockContext withCompletionBlock:nil];
         });
 
         it(@"observes the firebase node when linking to Core Data", ^{
@@ -85,20 +88,6 @@ SPEC_BEGIN(FireDataSpec)
             NSFetchRequest *mockFetchRequest = [NSFetchRequest new];
             [NSFetchRequest stub:@selector(fetchRequestWithEntityName:) andReturn:mockFetchRequest];
             [firebaseRoot simulateChangeForKey:@"foo_@@_bar"];
-        });
-
-        it(@"posts a notification when core data is updated from Firebase", ^{
-            FirebaseMock *firebaseRoot = [FirebaseMock new];
-            [fireData linkCoreDataEntity:@"Entity" withFirebase:firebaseRoot];
-            [fireData startObserving];
-            
-            NSManagedObjectContext *mockContext = [NSManagedObjectContext nullMock];
-            [mockContext stub:@selector(hasChanges) andReturn:theValue(YES)];
-            [fireData setWriteManagedObjectContext:mockContext withCompletionBlock:^(NSManagedObjectContext *error) {}];
-            
-            [[[NSNotificationCenter defaultCenter] should] receive:@selector(postNotificationName:object:) withArguments:FDCoreDataDidSaveNotification, nil];
-            [NSEntityDescription stub:@selector(insertNewObjectForEntityForName:inManagedObjectContext:)];
-            [firebaseRoot simulateChange];
         });
 
         context(@"when linking a Core Data entity without an index", ^{
@@ -248,6 +237,17 @@ SPEC_BEGIN(FireDataSpec)
         });
 
     });
+}
+
++ (NSManagedObjectContext *)mockContext {
+    NSManagedObjectContext *mockContext = [NSManagedObjectContext nullMock];
+    [mockContext stub:@selector(hasChanges) andReturn:theValue(YES)];
+    [mockContext stub:@selector(performBlock:) withBlock:^id(NSArray *params) {
+        void (^completionBlock)() = params[0];
+        completionBlock();
+        return nil;
+    }];
+    return mockContext;
 }
 
 + (MockManagedObject *)mockManagedObjectWithKeyValue:(NSString *)keyValue forAttribute:(NSString *)coreDataKeyAttribute {

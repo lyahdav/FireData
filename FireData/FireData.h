@@ -28,8 +28,6 @@
 #import <Firebase/Firebase.h>
 #import <CoreData/CoreData.h>
 
-extern NSString *const FDCoreDataDidSaveNotification;
-
 @interface FireData : NSObject
 
 /**

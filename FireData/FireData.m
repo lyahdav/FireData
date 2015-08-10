@@ -10,7 +10,6 @@
 #import "NSManagedObject+FireData.h"
 
 typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context);
-NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification";
 
 @interface FireData ()
 @property (strong, nonatomic) NSManagedObjectContext *observedManagedObjectContext;
@@ -249,18 +248,19 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
 {
     if ((id)properties == [NSNull null]) return;
 
-    NSManagedObject *managedObject = [self fetchCoreDataManagedObjectWithEntityName:entityName firebaseKey:firebaseKey];
-    if (!managedObject) {
-        managedObject = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:self.writeManagedObjectContext];
-        [managedObject setValue:[FireData coreDataSyncValueForFirebaseSyncValue:firebaseKey] forKey:self.coreDataKeyAttribute];
-    }
+    [self.writeManagedObjectContext performBlock:^{
+        NSManagedObject *managedObject = [self fetchCoreDataManagedObjectWithEntityName:entityName firebaseKey:firebaseKey];
+        if (!managedObject) {
+            managedObject = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:self.writeManagedObjectContext];
+            [managedObject setValue:[FireData coreDataSyncValueForFirebaseSyncValue:firebaseKey] forKey:self.coreDataKeyAttribute];
+        }
 
-    [managedObject firedata_setPropertiesForKeysWithDictionary:properties coreDataKeyAttribute:self.coreDataKeyAttribute coreDataDataAttribute:self.coreDataDataAttribute];
+        [managedObject firedata_setPropertiesForKeysWithDictionary:properties coreDataKeyAttribute:self.coreDataKeyAttribute coreDataDataAttribute:self.coreDataDataAttribute];
 
-    if ([self.writeManagedObjectContext hasChanges] && self.writeManagedObjectContextCompletionBlock) {
-        self.writeManagedObjectContextCompletionBlock(self.writeManagedObjectContext);
-        [[NSNotificationCenter defaultCenter] postNotificationName:FDCoreDataDidSaveNotification object:nil];
-    }
+        if ([self.writeManagedObjectContext hasChanges] && self.writeManagedObjectContextCompletionBlock) {
+            self.writeManagedObjectContextCompletionBlock(self.writeManagedObjectContext);
+        }
+    }];
 }
 
 - (Firebase *)firebaseForCoreDataEntity:(NSString *)entity
@@ -312,15 +312,16 @@ NSString *const FDCoreDataDidSaveNotification = @"FDCoreDataDidSaveNotification"
         return;
     }
 
-    NSManagedObject *managedObject = [self fetchCoreDataManagedObjectWithEntityName:coreDataEntity firebaseKey:snapshot.key];
-    if (managedObject) {
-        [self.writeManagedObjectContext deleteObject:managedObject];
+    [self.writeManagedObjectContext performBlock:^{
+        NSManagedObject *managedObject = [self fetchCoreDataManagedObjectWithEntityName:coreDataEntity firebaseKey:snapshot.key];
+        if (managedObject) {
+            [self.writeManagedObjectContext deleteObject:managedObject];
 
-        if (self.writeManagedObjectContextCompletionBlock) {
-            self.writeManagedObjectContextCompletionBlock(self.writeManagedObjectContext);
-            [[NSNotificationCenter defaultCenter] postNotificationName:FDCoreDataDidSaveNotification object:nil];
+            if (self.writeManagedObjectContextCompletionBlock) {
+                self.writeManagedObjectContextCompletionBlock(self.writeManagedObjectContext);
+            }
         }
-    }
+    }];
 }
 
 - (void)updateFirebase:(Firebase *)firebase withManagedObject:(NSManagedObject *)managedObject
