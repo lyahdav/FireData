@@ -88,6 +88,14 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
 {
     [self.linkedEntities[coreDataEntity] removeAllObservers];
     [self.linkedEntities removeObjectForKey:coreDataEntity];
+    [self.indexEntities[coreDataEntity] removeAllObservers];
+    [self.indexEntities removeObjectForKey:coreDataEntity];
+}
+
+- (void)unlinkAllCoreDataEntities {
+    for (NSString *entityName in [[self.linkedEntities allKeys] copy]) {
+        [self unlinkCoreDataEntity:entityName];
+    }
 }
 
 - (void)startObserving

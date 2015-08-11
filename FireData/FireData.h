@@ -92,6 +92,11 @@
 - (void)unlinkCoreDataEntity:(NSString *)coreDataEntity;
 
 /**
+* Unlinks all previously linked Core Data entities from FireBase
+*/
+- (void)unlinkAllCoreDataEntities;
+
+/**
 * Starts observing changes between Core Data and Firebase.
 */
 - (void)startObserving;
