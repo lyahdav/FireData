@@ -343,13 +343,13 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
             NSAssert(!error, @"%@", error);
         }];
     } else {
-        Firebase *indexChild = [indexFirebase childByAppendingPath:[self firebaseSyncValueForManagedObject:managedObject]];
-        [indexChild setValue:@YES withCompletionBlock:^(NSError *error, Firebase *ref) {
+        Firebase *child = [firebase childByAppendingPath:[self firebaseSyncValueForManagedObject:managedObject]];
+        [child setValue:properties withCompletionBlock:^(NSError *error, Firebase *ref) {
             NSAssert(!error, @"%@", error);
         }];
 
-        Firebase *child = [firebase childByAppendingPath:[self firebaseSyncValueForManagedObject:managedObject]];
-        [child setValue:properties withCompletionBlock:^(NSError *error, Firebase *ref) {
+        Firebase *indexChild = [indexFirebase childByAppendingPath:[self firebaseSyncValueForManagedObject:managedObject]];
+        [indexChild setValue:@YES withCompletionBlock:^(NSError *error, Firebase *ref) {
             NSAssert(!error, @"%@", error);
         }];
     }
