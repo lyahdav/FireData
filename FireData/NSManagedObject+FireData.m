@@ -19,9 +19,15 @@
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     FireDataISO8601DateFormatter *dateFormatter = [FireDataISO8601DateFormatter sharedFormatter];
 
+    NSArray *excludedProperties = [self excludedProperties];
     for (id property in [[self entity] properties]) {
         NSString *name = [property name];
-        if ([name isEqualToString:coreDataKeyAttribute] || [name isEqualToString:coreDataDataAttribute]) continue;
+
+        if ([excludedProperties containsObject:name] ||
+            [name isEqualToString:coreDataKeyAttribute] ||
+            [name isEqualToString:coreDataDataAttribute]) {
+            continue;
+        }
 
         if ([property isKindOfClass:[NSAttributeDescription class]]) {
             NSAttributeDescription *attributeDescription = (NSAttributeDescription *)property;
@@ -60,9 +66,16 @@
 - (void)firedata_setPropertiesForKeysWithDictionary:(NSDictionary *)keyedValues coreDataKeyAttribute:(NSString *)coreDataKeyAttribute coreDataDataAttribute:(NSString *)coreDataDataAttribute
 {
     FireDataISO8601DateFormatter *dateFormatter = [FireDataISO8601DateFormatter sharedFormatter];
+
+    NSArray *excludedProperties = [self excludedProperties];
     for (NSPropertyDescription *propertyDescription in [[self entity] properties]) {
         NSString *name = [propertyDescription name];
-        if ([name isEqualToString:coreDataKeyAttribute] || [name isEqualToString:coreDataDataAttribute]) continue;
+
+        if ([excludedProperties containsObject:name] ||
+            [name isEqualToString:coreDataKeyAttribute] ||
+            [name isEqualToString:coreDataDataAttribute]) {
+            continue;
+        }
 
         if ([propertyDescription isKindOfClass:[NSAttributeDescription class]]) {
             id value = [keyedValues objectForKey:name];
@@ -145,4 +158,13 @@
         [self setValue:FirebaseSyncData forKey:coreDataDataAttribute];
     }
 }
+
+- (NSArray *)excludedProperties {
+    NSArray *excludedProperties = @[];
+    if ([self respondsToSelector:@selector(excludedFiredataProperties)]) {
+        excludedProperties = [self performSelector:@selector(excludedFiredataProperties)];
+    }
+    return excludedProperties;
+}
+
 @end
