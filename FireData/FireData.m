@@ -339,12 +339,12 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
 
     if (indexFirebase == nil) {
         Firebase *child = [firebase childByAppendingPath:[self firebaseSyncValueForManagedObject:managedObject]];
-        [child setValue:properties withCompletionBlock:^(NSError *error, Firebase *ref) {
+        [child updateChildValues:properties withCompletionBlock:^(NSError *error, Firebase *ref) {
             NSAssert(!error, @"%@", error);
         }];
     } else {
         Firebase *child = [firebase childByAppendingPath:[self firebaseSyncValueForManagedObject:managedObject]];
-        [child setValue:properties withCompletionBlock:^(NSError *error, Firebase *ref) {
+        [child updateChildValues:properties withCompletionBlock:^(NSError *error, Firebase *ref) {
             NSAssert(!error, @"%@", error);
         }];
 
