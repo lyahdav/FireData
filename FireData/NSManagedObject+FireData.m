@@ -40,7 +40,12 @@
             if ((attributeType == NSDateAttributeType) && ([value isKindOfClass:[NSDate class]]) && (dateFormatter != nil)) {
                 value = [dateFormatter stringFromDate:value];
             }
-            [properties setValue:value forKey:name];
+
+            if (value == nil) {
+                [properties setValue:[NSNull null] forKey:name];
+            } else {
+                [properties setValue:value forKey:name];
+            }
         } else if ([property isKindOfClass:[NSRelationshipDescription class]]) {
             NSRelationshipDescription *relationshipDescription = (NSRelationshipDescription *)property;
             NSString *name = [relationshipDescription name];
@@ -55,7 +60,13 @@
                 [properties setValue:items forKey:name];
             } else {
                 NSManagedObject *managedObject = [self valueForKey:name];
-                [properties setValue:[FireData firebaseSyncValueFromCoreDataSyncValue:[managedObject valueForKey:coreDataKeyAttribute]] forKey:name];
+
+                NSString *value = [FireData firebaseSyncValueFromCoreDataSyncValue:[managedObject valueForKey:coreDataKeyAttribute]];
+                if (value == nil) {
+                    [properties setValue:[NSNull null] forKey:name];
+                } else {
+                    [properties setValue:value forKey:name];
+                }
             }
         }
     }
