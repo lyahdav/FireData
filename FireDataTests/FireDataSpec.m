@@ -108,7 +108,7 @@ SPEC_BEGIN(FireDataSpec)
                 NSDictionary *userInfo = @{NSInsertedObjectsKey : [NSSet setWithObject:mockManagedObject]};
 
                 FirebaseMock *childNode = [FirebaseMock new];
-                [[childNode should] receive:@selector(setValue:withCompletionBlock:) withArguments:@{@"key" : @"1"}, any()];
+                [[childNode should] receive:@selector(updateChildValues:withCompletionBlock:) withArguments:@{@"key" : @"1"}, any()];
                 [firebaseRoot stub:@selector(childByAppendingPath:) andReturn:childNode withArguments:@"1"];
                 [[NSNotificationCenter defaultCenter] postNotificationName:NSManagedObjectContextDidSaveNotification object:mockContext
                                                                   userInfo:userInfo];
@@ -119,7 +119,7 @@ SPEC_BEGIN(FireDataSpec)
                 NSDictionary *userInfo = @{NSInsertedObjectsKey : [NSSet setWithObject:mockManagedObject]};
                 
                 FirebaseMock *childNode = [FirebaseMock new];
-                [[childNode should] receive:@selector(setValue:withCompletionBlock:) withArguments:@{@"key" : @"foo.bar"}, any()];
+                [[childNode should] receive:@selector(updateChildValues:withCompletionBlock:) withArguments:@{@"key" : @"foo.bar"}, any()];
                 [firebaseRoot stub:@selector(childByAppendingPath:) andReturn:childNode withArguments:@"foo_@@_bar"];
                 [[NSNotificationCenter defaultCenter] postNotificationName:NSManagedObjectContextDidSaveNotification object:mockContext
                                                                   userInfo:userInfo];
@@ -170,7 +170,7 @@ SPEC_BEGIN(FireDataSpec)
 
             it(@"writes the actual data in Firebase after writing to the index when saving a Core Data entity", ^{
                 FirebaseMock *childNode = [FirebaseMock new];
-                [[childNode should] receive:@selector(setValue:withCompletionBlock:) withArguments:@{@"key" : @"1"}, any()];
+                [[childNode should] receive:@selector(updateChildValues:withCompletionBlock:) withArguments:@{@"key" : @"1"}, any()];
                 [firebaseRoot stub:@selector(childByAppendingPath:) andReturn:childNode withArguments:@"1"];
                 [[NSNotificationCenter defaultCenter] postNotificationName:NSManagedObjectContextDidSaveNotification object:mockContext
                                                                   userInfo:saveNotificationUserInfo];
@@ -227,7 +227,7 @@ SPEC_BEGIN(FireDataSpec)
                 NSDictionary *userInfo = @{NSInsertedObjectsKey : [NSSet setWithObject:mockManagedObject]};
                 
                 FirebaseMock *childNode = [FirebaseMock new];
-                [[childNode should] receive:@selector(setValue:withCompletionBlock:) withArguments:@{@"key" : @"my.test.email@gmail.com"}, any()];
+                [[childNode should] receive:@selector(updateChildValues:withCompletionBlock:) withArguments:@{@"key" : @"my.test.email@gmail.com"}, any()];
                 [firebaseRoot stub:@selector(childByAppendingPath:) andReturn:childNode withArguments:@"my_@@_test_@@_email@gmail_@@_com"];
                 
                 [[NSNotificationCenter defaultCenter] postNotificationName:NSManagedObjectContextDidSaveNotification object:mockContext
