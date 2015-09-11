@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="8195" systemVersion="14F27" minimumToolsVersion="Xcode 7.0">
+    <entity name="SomeEntity" representedClassName="SomeEntity" syncable="YES">
+        <attribute name="firebaseData" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="firebaseKey" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="someAttribute" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="SomeEntity" positionX="-63" positionY="-18" width="128" height="90"/>
+    </elements>
+</model>
