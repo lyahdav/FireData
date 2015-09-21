@@ -30,6 +30,8 @@
 
 @interface FireData : NSObject
 
+@property (nonatomic) BOOL ignoreManagedObjectSaveNotification;
+
 /**
 * Set this property to the Core Data unique key attribute used by Firebase.
 * @default firebaseKey

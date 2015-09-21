@@ -190,6 +190,9 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
 
 - (void)managedObjectContextDidSave:(NSNotification *)notification
 {
+    if (notification.object == self.writeManagedObjectContext || self.ignoreManagedObjectSaveNotification == YES) {
+        return;
+    }
     NSSet *deletedObjects = [notification userInfo][NSDeletedObjectsKey];
     for (NSManagedObject *managedObject in deletedObjects) {
         Firebase *firebase = [self firebaseForCoreDataEntity:[[managedObject entity] name]];
