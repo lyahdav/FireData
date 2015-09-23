@@ -167,6 +167,11 @@
 
     if ([[self changedValues] count] > 0) {
         [self setValue:FirebaseSyncData forKey:coreDataDataAttribute];
+        
+        if ([self respondsToSelector:@selector(fireDataWasSyncedFromFirebase)]) {
+            // Give objects an opportunity to respond to the sync
+            [self performSelector:@selector(fireDataWasSyncedFromFirebase)];
+        }
     }
 }
 
