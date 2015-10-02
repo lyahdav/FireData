@@ -1,5 +1,5 @@
 //
-//  SomeEntity+CoreDataProperties.m
+//  SomeOtherEntity+CoreDataProperties.m
 //  FireData
 //
 //  Created by kriser gellci on 10/2/15.
@@ -9,13 +9,13 @@
 //  to delete and recreate this implementation file for your updated model.
 //
 
-#import "SomeEntity+CoreDataProperties.h"
+#import "SomeOtherEntity+CoreDataProperties.h"
 
-@implementation SomeEntity (CoreDataProperties)
+@implementation SomeOtherEntity (CoreDataProperties)
 
+@dynamic name;
 @dynamic firebaseData;
 @dynamic firebaseKey;
-@dynamic someAttribute;
-@dynamic someOtherEntities;
+@dynamic someEntity;
 
 @end

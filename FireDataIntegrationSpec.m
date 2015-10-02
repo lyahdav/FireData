@@ -2,6 +2,7 @@
 #import "FireData.h"
 #import "CoreDataManager.h"
 #import "SomeEntity.h"
+#import "SomeOtherEntity.h"
 
 SPEC_BEGIN(FireDataIntegrationSpec)
 
@@ -18,7 +19,17 @@ describe(@"FireDataIntegration", ^{
             firebaseRoot = [[Firebase alloc] initWithUrl:@"https://shining-fire-7516.firebaseio.com"];
 
             FireData *fireData = [FireData new];
-            [fireData linkCoreDataEntity:@"SomeEntity" withFirebase:firebaseRoot];
+            [fireData linkCoreDataEntity:@"SomeEntity" withFirebase:[firebaseRoot childByAppendingPath:@"SomeEntities"]];
+            [fireData linkCoreDataEntity:@"SomeOtherEntity" withFirebase:[firebaseRoot childByAppendingPath:@"SomeOtherEntities"]];
+            
+            NSManagedObjectContext *writingContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+            [writingContext setParentContext:context];
+
+            [fireData setWriteManagedObjectContext:writingContext withCompletionBlock:^(NSManagedObjectContext *innerContext) {
+                NSError *error = nil;
+                [innerContext save:&error];
+                NSAssert(error == nil, @"error: %@", error);
+            }];
             [fireData observeManagedObjectContext:context];
             [fireData startObserving];
         });
@@ -26,12 +37,36 @@ describe(@"FireDataIntegration", ^{
         it(@"allows setting and clearing an attribute", ^{
             SomeEntity *entity = [self createAndSaveManagedObjectInManager:manager withAttribute:@"some value"];
 
-            [self firebase:firebaseRoot entityKey:entity.firebaseKey attributeShouldEqual:@"some value"];
+            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity.firebaseKey attributeShouldEqual:@"some value"];
 
             entity.someAttribute = nil;
             [manager saveContext];
 
-            [self firebase:firebaseRoot entityKey:entity.firebaseKey attributeShouldEqual:nil];
+            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity.firebaseKey attributeShouldEqual:nil];
+        });
+        
+        it(@"Removes one to many relationships in core data when removed from firebase", ^{
+            SomeEntity *entity = [NSEntityDescription insertNewObjectForEntityForName:@"SomeEntity" inManagedObjectContext:manager.managedObjectContext];
+            SomeOtherEntity *otherEntity = [NSEntityDescription insertNewObjectForEntityForName:@"SomeOtherEntity" inManagedObjectContext:manager.managedObjectContext];
+            otherEntity.someEntity = entity;
+            otherEntity.name = @"test";
+            [manager saveContext];
+            
+            Firebase *someEntityReferenceFromSomeOtherEntityInFirebase = [[[firebaseRoot childByAppendingPath:@"SomeOtherEntities"] childByAppendingPath:otherEntity.firebaseKey] childByAppendingPath:@"someEntity"];
+            
+            __block NSString *someEntityReference = nil;
+            [someEntityReferenceFromSomeOtherEntityInFirebase observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+                someEntityReference = snapshot.value;
+            }];
+
+            [[expectFutureValue(someEntityReference) shouldEventually] equal:entity.firebaseKey];
+            
+            [someEntityReferenceFromSomeOtherEntityInFirebase setValue:nil];
+            
+            id(^someEntityReferenceFromSomeOtherEntityInCoreData)() = ^id(){
+                return ((SomeOtherEntity *)[context objectWithID:otherEntity.objectID]).someEntity;
+            };
+            [[expectFutureValue(someEntityReferenceFromSomeOtherEntityInCoreData()) shouldEventuallyBeforeTimingOutAfter(10)] beNil];
         });
     });
 });

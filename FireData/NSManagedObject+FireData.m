@@ -148,6 +148,7 @@
                 }
             } else {
                 if (keyedValues[name] == nil) {
+                    [self setValue:nil forKey:name];
                     continue;
                 }
                 [fetchRequest setPredicate:[NSPredicate predicateWithFormat:@"%K == %@", coreDataKeyAttribute, [FireData coreDataSyncValueForFirebaseSyncValue:[keyedValues objectForKey:name]]]];

@@ -23,6 +23,8 @@
 
 /* Begin PBXBuildFile section */
 		25231BDEAAE9C525C764B979 /* FirebaseMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 252311621601A4B76D52F307 /* FirebaseMock.m */; };
+		A4DD1C3C1BBF2E1700118A61 /* SomeOtherEntity+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = A4DD1C391BBF2E1700118A61 /* SomeOtherEntity+CoreDataProperties.m */; settings = {ASSET_TAGS = (); }; };
+		A4DD1C3D1BBF2E1700118A61 /* SomeOtherEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = A4DD1C3B1BBF2E1700118A61 /* SomeOtherEntity.m */; settings = {ASSET_TAGS = (); }; };
 		ABBDD08C16FA31DB002D7BE3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBDD08B16FA31DB002D7BE3 /* Foundation.framework */; };
 		ABBDD09116FA31DB002D7BE3 /* FireData.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = ABBDD09016FA31DB002D7BE3 /* FireData.h */; };
 		ABBDD09316FA31DB002D7BE3 /* FireData.m in Sources */ = {isa = PBXBuildFile; fileRef = ABBDD09216FA31DB002D7BE3 /* FireData.m */; };
@@ -99,6 +101,10 @@
 		35EB57860265702938F33491 /* Pods-FireDataTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FireDataTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FireDataTests/Pods-FireDataTests.debug.xcconfig"; sourceTree = "<group>"; };
 		981A5DC5BDD507A86D33DFE6 /* libPods-FireDataTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-FireDataTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9EFB7545209483DB95D4816C /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+		A4DD1C381BBF2E1700118A61 /* SomeOtherEntity+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SomeOtherEntity+CoreDataProperties.h"; sourceTree = "<group>"; };
+		A4DD1C391BBF2E1700118A61 /* SomeOtherEntity+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SomeOtherEntity+CoreDataProperties.m"; sourceTree = "<group>"; };
+		A4DD1C3A1BBF2E1700118A61 /* SomeOtherEntity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SomeOtherEntity.h; sourceTree = "<group>"; };
+		A4DD1C3B1BBF2E1700118A61 /* SomeOtherEntity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SomeOtherEntity.m; sourceTree = "<group>"; };
 		ABBDD08816FA31DB002D7BE3 /* libFireData.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libFireData.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABBDD08B16FA31DB002D7BE3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		ABBDD08F16FA31DB002D7BE3 /* FireData-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "FireData-Prefix.pch"; sourceTree = "<group>"; };
@@ -257,6 +263,10 @@
 			children = (
 				FE61B4D81BA242DD00355A26 /* FireDataIntegrationSpec.m */,
 				FE61B5001BA244D600355A26 /* DataModel.xcdatamodeld */,
+				A4DD1C381BBF2E1700118A61 /* SomeOtherEntity+CoreDataProperties.h */,
+				A4DD1C391BBF2E1700118A61 /* SomeOtherEntity+CoreDataProperties.m */,
+				A4DD1C3A1BBF2E1700118A61 /* SomeOtherEntity.h */,
+				A4DD1C3B1BBF2E1700118A61 /* SomeOtherEntity.m */,
 				FE61B5031BA2451D00355A26 /* SomeEntity+CoreDataProperties.h */,
 				FE61B5041BA2451D00355A26 /* SomeEntity+CoreDataProperties.m */,
 				FE61B5051BA2451D00355A26 /* SomeEntity.h */,
@@ -529,10 +539,12 @@
 			files = (
 				FE61B4D51BA2418500355A26 /* FireData.m in Sources */,
 				FE61B50F1BA24B4400355A26 /* DataModel.xcdatamodeld in Sources */,
+				A4DD1C3C1BBF2E1700118A61 /* SomeOtherEntity+CoreDataProperties.m in Sources */,
 				FE61B50E1BA24B3800355A26 /* CoreDataManager.m in Sources */,
 				FE61B4C41BA2410F00355A26 /* NSManagedObject+FireData.m in Sources */,
 				FE61B4C51BA2410F00355A26 /* FireDataISO8601DateFormatter.m in Sources */,
 				FE61B5081BA2451D00355A26 /* SomeEntity.m in Sources */,
+				A4DD1C3D1BBF2E1700118A61 /* SomeOtherEntity.m in Sources */,
 				FE61B5071BA2451D00355A26 /* SomeEntity+CoreDataProperties.m in Sources */,
 				FE61B4D91BA242DD00355A26 /* FireDataIntegrationSpec.m in Sources */,
 			);
