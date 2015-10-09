@@ -1,16 +1,16 @@
 PODS:
-  - Firebase (2.3.2)
+  - Firebase (2.4.2)
   - ISO8601DateFormatter (0.7)
   - Kiwi (2.4.0)
 
 DEPENDENCIES:
-  - Firebase (~> 2.0)
+  - Firebase
   - ISO8601DateFormatter (~> 0.6)
   - Kiwi
 
 SPEC CHECKSUMS:
-  Firebase: 02fbeacfe19970856c872321788194524f21ffed
+  Firebase: 5e898ed5012c81d28ca5fae1113c6b61a172bc6d
   ISO8601DateFormatter: ab926648eebe497f4d167c0fd083992f959f1274
   Kiwi: f49c9d54b28917df5928fe44968a39ed198cb8a8
 
-COCOAPODS: 0.34.2
+COCOAPODS: 0.38.2
