@@ -9,9 +9,8 @@ Pod::Spec.new do |s|
   s.platform     = :ios, '7.0'
   s.source_files = 'FireData'
   s.public_header_files = 'FireData/FireData.h'
-  s.frameworks = 'CoreData', 'Firebase'
+  s.frameworks = 'CoreData'
   s.requires_arc = true
   s.dependency 'Firebase', '~> 2.4'
   s.dependency 'ISO8601DateFormatter', '~> 0.6'
-  s.xcconfig = { 'FRAMEWORK_SEARCH_PATHS' => '"$(PODS_ROOT)/Firebase"' }
 end
