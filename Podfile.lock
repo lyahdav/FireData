@@ -4,7 +4,7 @@ PODS:
   - Kiwi (2.4.0)
 
 DEPENDENCIES:
-  - Firebase
+  - Firebase (~> 2.4)
   - ISO8601DateFormatter (~> 0.6)
   - Kiwi
 
