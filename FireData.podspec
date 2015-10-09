@@ -7,7 +7,7 @@ Pod::Spec.new do |s|
   s.author       = { "Jonathan Younger" => "jonathan@daikini.com" }
   s.source       = { :git => "https://github.com/overcommitted/FireData.git", :tag => "0.9.0" }
   s.platform     = :ios, '7.0'
-  s.source_files = 'FireData'
+  s.source_files = 'FireData', '~> 2.4'
   s.public_header_files = 'FireData/FireData.h'
   s.frameworks = 'CoreData', 'Firebase'
   s.requires_arc = true
