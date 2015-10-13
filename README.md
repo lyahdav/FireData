@@ -1,5 +1,8 @@
 FireData
 ========
+[![Build
+Status](https://travis-ci.org/lyahdav/FireData.svg?branch=travis_ci)](https://travis-ci.org/lyahdav/FireData)
+
 FireData seamlessly integrates Core Data with [Firebase](http://www.firebase.com).
 
 
