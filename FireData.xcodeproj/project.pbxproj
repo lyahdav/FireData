@@ -678,6 +678,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 35EB57860265702938F33491 /* Pods-FireDataTests.debug.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "FireData/FireData-Prefix.pch";
 				INFOPLIST_FILE = "FireDataTests/FireDataTests-Info.plist";
@@ -690,6 +691,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = FA00FC918A10DBECB5FF9CF4 /* Pods-FireDataTests.release.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "FireData/FireData-Prefix.pch";
 				INFOPLIST_FILE = "FireDataTests/FireDataTests-Info.plist";
@@ -718,6 +720,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 35EB57860265702938F33491 /* Pods-FireDataTests.debug.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "FireData/FireData-Prefix.pch";
 				INFOPLIST_FILE = "FireDataTests copy-Info.plist";
@@ -730,6 +733,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = FA00FC918A10DBECB5FF9CF4 /* Pods-FireDataTests.release.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "FireData/FireData-Prefix.pch";
 				INFOPLIST_FILE = "FireDataTests copy-Info.plist";
