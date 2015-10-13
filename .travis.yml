@@ -1,2 +1,3 @@
 language: objective-c
-
+xcode_workspace: FireData.xcworkspace
+xcode_scheme: FireData
