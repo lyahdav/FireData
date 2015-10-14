@@ -25,7 +25,6 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
 - (NSManagedObject *)fetchCoreDataManagedObjectWithEntityName:(NSString *)entityName firebaseKey:(NSString *)firebaseKey;
 - (Firebase *)firebaseForCoreDataEntity:(NSString *)entity;
 - (void)observeFirebase:(Firebase *)firebase;
-- (void)updateFirebase:(Firebase *)firebase withManagedObject:(NSManagedObject *)managedObject;
 @end
 
 @implementation FireData
@@ -120,6 +119,7 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
 
 - (void)uploadMissingCoreDataObjectsToFirebase:(FDataSnapshot *)snapshot
 {
+    NSMutableDictionary *firebaseUpdateDictionary = [NSMutableDictionary new];
     [self enumerateLinkedEntitiesUsingBlock:^(NSArray *managedObjects, Firebase *firebase) {
         for (NSManagedObject *managedObject in managedObjects) {
             NSString *syncID = [self firebaseSyncValueForManagedObject:managedObject];
@@ -127,10 +127,13 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
             NSString *childPath = [NSString stringWithFormat:@"%@/%@", entityName, syncID];
 
             if (![snapshot hasChild:childPath]) {
-                [self updateFirebase:firebase withManagedObject:managedObject];
+                [self updateFirebaseDictionary:firebaseUpdateDictionary forManagedObject:managedObject withFirebaseNode:firebase];
             }
         };
     }];
+    if (firebaseUpdateDictionary.count > 0) {
+        [self updateFirebaseRootWithDictionary:firebaseUpdateDictionary];
+    }
 }
 
 - (void)addMissingFirebaseKeyToCoreDataObjects
@@ -194,18 +197,22 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
         return;
     }
     NSSet *deletedObjects = [notification userInfo][NSDeletedObjectsKey];
+    NSMutableDictionary *firebaseUpdateDictionary = [NSMutableDictionary new];
+    //TODO: Make deletion own method
     for (NSManagedObject *managedObject in deletedObjects) {
         Firebase *firebase = [self firebaseForCoreDataEntity:[[managedObject entity] name]];
         Firebase *indexFirebase = self.indexEntities[[[managedObject entity] name]];
 
         if (firebase) {
             Firebase *child = [firebase childByAppendingPath:[self firebaseSyncValueForManagedObject:managedObject]];
-            [child removeValue];
+            NSURL *childURL = [NSURL URLWithString:[child description]];
+            firebaseUpdateDictionary[childURL.path] = [NSNull null];
         }
 
         if (indexFirebase) {
             Firebase *indexChild = [indexFirebase childByAppendingPath:[self firebaseSyncValueForManagedObject:managedObject]];
-            [indexChild removeValue];
+            NSURL *childURL = [NSURL URLWithString:[indexChild description]];
+            firebaseUpdateDictionary[childURL.path] = [NSNull null];
         }
     };
 
@@ -223,9 +230,11 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
     for (NSManagedObject *managedObject in changedObjects) {
         Firebase *firebase = [self firebaseForCoreDataEntity:[[managedObject entity] name]];
         if (firebase) {
-            [self updateFirebase:firebase withManagedObject:managedObject];
+            [self updateFirebaseDictionary:firebaseUpdateDictionary forManagedObject:managedObject withFirebaseNode:firebase];
         }
     };
+
+    [self updateFirebaseRootWithDictionary:firebaseUpdateDictionary];
 }
 
 - (NSString *)coreDataEntityForFirebase:(Firebase *)firebase
@@ -335,26 +344,24 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
     }];
 }
 
-- (void)updateFirebase:(Firebase *)firebase withManagedObject:(NSManagedObject *)managedObject
-{
-    Firebase *indexFirebase = self.indexEntities[[[managedObject entity] name]];
+- (void)updateFirebaseRootWithDictionary:(NSDictionary *)dictionary {
+    Firebase *firebaseRoot = [self firebaseRoot];
+    NSAssert(firebaseRoot != nil, @"No firebase root found from linked entities: %@", self.linkedEntities);
+    [firebaseRoot updateChildValues:dictionary withCompletionBlock:^(NSError *error, Firebase *ref) {
+        NSAssert(!error, @"%@", error);
+    }];
+}
+
+- (void)updateFirebaseDictionary:(NSMutableDictionary * _Nonnull)firebaseDictionary forManagedObject:(NSManagedObject * _Nonnull)managedObject withFirebaseNode:(Firebase * _Nonnull)firebase {
+    NSURL *childURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", [firebase description], [self firebaseSyncValueForManagedObject:managedObject]]];
     NSDictionary *properties = [managedObject firedata_propertiesDictionaryWithCoreDataKeyAttribute:self.coreDataKeyAttribute coreDataDataAttribute:self.coreDataDataAttribute];
+    firebaseDictionary[childURL.path] = properties;
 
-    if (indexFirebase == nil) {
-        Firebase *child = [firebase childByAppendingPath:[self firebaseSyncValueForManagedObject:managedObject]];
-        [child updateChildValues:properties withCompletionBlock:^(NSError *error, Firebase *ref) {
-            NSAssert(!error, @"%@", error);
-        }];
-    } else {
-        Firebase *child = [firebase childByAppendingPath:[self firebaseSyncValueForManagedObject:managedObject]];
-        [child updateChildValues:properties withCompletionBlock:^(NSError *error, Firebase *ref) {
-            NSAssert(!error, @"%@", error);
-        }];
-
+    Firebase *indexFirebase = self.indexEntities[[[managedObject entity] name]];
+    if (indexFirebase) {
         Firebase *indexChild = [indexFirebase childByAppendingPath:[self firebaseSyncValueForManagedObject:managedObject]];
-        [indexChild setValue:@YES withCompletionBlock:^(NSError *error, Firebase *ref) {
-            NSAssert(!error, @"%@", error);
-        }];
+        NSURL *indexURL = [NSURL URLWithString:[indexChild description]];
+        firebaseDictionary[indexURL.path] = @YES;
     }
 }
 
@@ -369,6 +376,11 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
 
 + (NSString *)coreDataSyncValueForFirebaseSyncValue:(NSString *)firebaseSyncValue {
     return [firebaseSyncValue stringByReplacingOccurrencesOfString:@"_@@_" withString:@"."];
+}
+
+-  (Firebase *)firebaseRoot {
+    Firebase *firebaseNode = [self.linkedEntities.allValues firstObject];
+    return firebaseNode.root;
 }
 
 @end

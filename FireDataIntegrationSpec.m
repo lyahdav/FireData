@@ -8,29 +8,38 @@ SPEC_BEGIN(FireDataIntegrationSpec)
 
 describe(@"FireDataIntegration", ^{
     context(@"given I'm observing Firebase", ^{
-        __block NSManagedObjectContext *context;
+        __block NSManagedObjectContext *managedObjectContext;
         __block CoreDataManager *manager;
         __block Firebase *firebaseRoot;
 
+        beforeAll(^{
+            __block BOOL clearedFirebase = NO;
+            Firebase *fbRoot = [[Firebase alloc] initWithUrl:@"https://shining-fire-7516.firebaseio.com"];
+            [fbRoot setValue:nil withCompletionBlock:^(NSError *error, Firebase *ref) {
+                clearedFirebase = YES;
+            }];
+            
+            [[expectFutureValue(theValue(clearedFirebase)) shouldEventuallyBeforeTimingOutAfter(10)] beTrue];
+        });
         beforeEach(^{
             manager = [CoreDataManager new];
-            context = manager.managedObjectContext;
+            managedObjectContext = manager.managedObjectContext;
 
             firebaseRoot = [[Firebase alloc] initWithUrl:@"https://shining-fire-7516.firebaseio.com"];
 
             FireData *fireData = [FireData new];
-            [fireData linkCoreDataEntity:@"SomeEntity" withFirebase:[firebaseRoot childByAppendingPath:@"SomeEntities"]];
+            [fireData linkCoreDataEntity:@"SomeEntity" withFirebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] withIndex:[firebaseRoot childByAppendingPath:@"someEntitiesIndex"]];
             [fireData linkCoreDataEntity:@"SomeOtherEntity" withFirebase:[firebaseRoot childByAppendingPath:@"SomeOtherEntities"]];
             
             NSManagedObjectContext *writingContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-            [writingContext setParentContext:context];
+            [writingContext setParentContext:managedObjectContext];
 
             [fireData setWriteManagedObjectContext:writingContext withCompletionBlock:^(NSManagedObjectContext *innerContext) {
                 NSError *error = nil;
                 [innerContext save:&error];
                 NSAssert(error == nil, @"error: %@", error);
             }];
-            [fireData observeManagedObjectContext:context];
+            [fireData observeManagedObjectContext:managedObjectContext];
             [fireData startObserving];
         });
 
@@ -64,9 +73,68 @@ describe(@"FireDataIntegration", ^{
             [someEntityReferenceFromSomeOtherEntityInFirebase setValue:nil];
             
             id(^someEntityReferenceFromSomeOtherEntityInCoreData)() = ^id(){
-                return ((SomeOtherEntity *)[context objectWithID:otherEntity.objectID]).someEntity;
+                return ((SomeOtherEntity *)[managedObjectContext objectWithID:otherEntity.objectID]).someEntity;
             };
             [[expectFutureValue(someEntityReferenceFromSomeOtherEntityInCoreData()) shouldEventuallyBeforeTimingOutAfter(10)] beNil];
+        });
+        
+        it(@"Writes two objects to the server from a single save", ^{
+            SomeEntity *entity1 = [NSEntityDescription insertNewObjectForEntityForName:@"SomeEntity" inManagedObjectContext:manager.managedObjectContext];
+            SomeEntity *entity2 = [NSEntityDescription insertNewObjectForEntityForName:@"SomeEntity" inManagedObjectContext:manager.managedObjectContext];
+            
+            entity1.someAttribute = @"entity1";
+            entity2.someAttribute = @"entity2";
+            [manager saveContext];
+            
+            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity1.firebaseKey attributeShouldEqual:@"entity1"];
+            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity2.firebaseKey attributeShouldEqual:@"entity2"];
+        });
+        
+        it(@"converts an objects sync key to save properly in firebase", ^{
+            SomeEntity *entity = [NSEntityDescription insertNewObjectForEntityForName:@"SomeEntity" inManagedObjectContext:manager.managedObjectContext];
+            
+            entity.someAttribute = @"entity1";
+            entity.firebaseKey = @"this.key";
+            [manager saveContext];
+            
+            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:[entity.firebaseKey stringByReplacingOccurrencesOfString:@"." withString:@"_@@_"] attributeShouldEqual:@"entity1"];
+            __block id firebaseEntityAttribute = nil;
+            [[firebaseRoot childByAppendingPath:@"someEntitiesIndex"] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+                // snapshot.value is [NSNull null] if the node is empty
+                if ([snapshot.value isKindOfClass:[NSDictionary class]]) {
+                    firebaseEntityAttribute = snapshot.value[[entity.firebaseKey stringByReplacingOccurrencesOfString:@"." withString:@"_@@_"]];
+                }
+            }];
+            [[expectFutureValue(firebaseEntityAttribute) shouldEventually] equal:@YES];
+        });
+        
+        it(@"updates an object as well as the index when it is a linked entity", ^{
+            SomeEntity *entity1 = [NSEntityDescription insertNewObjectForEntityForName:@"SomeEntity" inManagedObjectContext:manager.managedObjectContext];
+            entity1.someAttribute = @"entity1";
+            [manager saveContext];
+            
+            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity1.firebaseKey attributeShouldEqual:@"entity1"];
+            
+            __block id firebaseIndexValue = nil;
+            [[firebaseRoot childByAppendingPath:@"someEntitiesIndex"] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+                // snapshot.value is [NSNull null] if the node is empty
+                if ([snapshot.value isKindOfClass:[NSDictionary class]]) {
+                    firebaseIndexValue = snapshot.value[entity1.firebaseKey];
+                }
+            }];
+            [[expectFutureValue(firebaseIndexValue) shouldEventually] equal:@YES];
+            
+            [managedObjectContext deleteObject:entity1];
+            [manager saveContext];
+            
+            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity1.firebaseKey attributeShouldEqual:nil];
+            [[firebaseRoot childByAppendingPath:@"someEntitiesIndex"] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
+                // snapshot.value is [NSNull null] if the node is empty
+                if ([snapshot.value isKindOfClass:[NSDictionary class]]) {
+                    firebaseIndexValue = snapshot.value[entity1.firebaseKey];
+                }
+            }];
+            [[expectFutureValue(firebaseIndexValue) shouldEventually] beNil];
         });
     });
 });
