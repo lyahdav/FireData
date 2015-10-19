@@ -2,7 +2,7 @@
 //  SomeEntity+CoreDataProperties.m
 //  FireData
 //
-//  Created by kriser gellci on 10/2/15.
+//  Created by kriser gellci on 10/19/15.
 //  Copyright © 2015 Overcommitted, LLC. All rights reserved.
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
@@ -16,6 +16,7 @@
 @dynamic firebaseData;
 @dynamic firebaseKey;
 @dynamic someAttribute;
+@dynamic attributeToIgnore;
 @dynamic someOtherEntities;
 
 @end

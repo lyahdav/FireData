@@ -355,7 +355,9 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
 - (void)updateFirebaseDictionary:(NSMutableDictionary * _Nonnull)firebaseDictionary forManagedObject:(NSManagedObject * _Nonnull)managedObject withFirebaseNode:(Firebase * _Nonnull)firebase {
     NSURL *childURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", [firebase description], [self firebaseSyncValueForManagedObject:managedObject]]];
     NSDictionary *properties = [managedObject firedata_propertiesDictionaryWithCoreDataKeyAttribute:self.coreDataKeyAttribute coreDataDataAttribute:self.coreDataDataAttribute];
-    firebaseDictionary[childURL.path] = properties;
+    for (NSString *propertyKey in properties.allKeys) {
+        firebaseDictionary[[NSString stringWithFormat:@"%@/%@", childURL.path, propertyKey]] = properties[propertyKey];
+    }
 
     Firebase *indexFirebase = self.indexEntities[[[managedObject entity] name]];
     if (indexFirebase) {

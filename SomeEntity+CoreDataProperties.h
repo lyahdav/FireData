@@ -2,7 +2,7 @@
 //  SomeEntity+CoreDataProperties.h
 //  FireData
 //
-//  Created by kriser gellci on 10/2/15.
+//  Created by kriser gellci on 10/19/15.
 //  Copyright © 2015 Overcommitted, LLC. All rights reserved.
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
@@ -18,6 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSString *firebaseData;
 @property (nullable, nonatomic, retain) NSString *firebaseKey;
 @property (nullable, nonatomic, retain) NSString *someAttribute;
+@property (nullable, nonatomic, retain) NSString *attributeToIgnore;
 @property (nullable, nonatomic, retain) NSSet<NSManagedObject *> *someOtherEntities;
 
 @end

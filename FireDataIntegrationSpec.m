@@ -46,12 +46,12 @@ describe(@"FireDataIntegration", ^{
         it(@"allows setting and clearing an attribute", ^{
             SomeEntity *entity = [self createAndSaveManagedObjectInManager:manager withAttribute:@"some value"];
 
-            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity.firebaseKey attributeShouldEqual:@"some value"];
+            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity.firebaseKey attribute:@"someAttribute" shouldEqual:@"some value"];
 
             entity.someAttribute = nil;
             [manager saveContext];
 
-            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity.firebaseKey attributeShouldEqual:nil];
+            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity.firebaseKey attribute:@"someAttribute" shouldEqual:nil];
         });
         
         it(@"Removes one to many relationships in core data when removed from firebase", ^{
@@ -86,8 +86,8 @@ describe(@"FireDataIntegration", ^{
             entity2.someAttribute = @"entity2";
             [manager saveContext];
             
-            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity1.firebaseKey attributeShouldEqual:@"entity1"];
-            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity2.firebaseKey attributeShouldEqual:@"entity2"];
+            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity1.firebaseKey attribute:@"someAttribute" shouldEqual:@"entity1"];
+            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity2.firebaseKey attribute:@"someAttribute" shouldEqual:@"entity2"];
         });
         
         it(@"converts an objects sync key to save properly in firebase", ^{
@@ -97,7 +97,7 @@ describe(@"FireDataIntegration", ^{
             entity.firebaseKey = @"this.key";
             [manager saveContext];
             
-            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:[entity.firebaseKey stringByReplacingOccurrencesOfString:@"." withString:@"_@@_"] attributeShouldEqual:@"entity1"];
+            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:[entity.firebaseKey stringByReplacingOccurrencesOfString:@"." withString:@"_@@_"] attribute:@"someAttribute" shouldEqual:@"entity1"];
             __block id firebaseEntityAttribute = nil;
             [[firebaseRoot childByAppendingPath:@"someEntitiesIndex"] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
                 // snapshot.value is [NSNull null] if the node is empty
@@ -113,7 +113,7 @@ describe(@"FireDataIntegration", ^{
             entity1.someAttribute = @"entity1";
             [manager saveContext];
             
-            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity1.firebaseKey attributeShouldEqual:@"entity1"];
+            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity1.firebaseKey attribute:@"someAttribute" shouldEqual:@"entity1"];
             
             __block id firebaseIndexValue = nil;
             [[firebaseRoot childByAppendingPath:@"someEntitiesIndex"] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
@@ -127,7 +127,7 @@ describe(@"FireDataIntegration", ^{
             [managedObjectContext deleteObject:entity1];
             [manager saveContext];
             
-            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity1.firebaseKey attributeShouldEqual:nil];
+            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity1.firebaseKey attribute:@"someAttribute" shouldEqual:nil];
             [[firebaseRoot childByAppendingPath:@"someEntitiesIndex"] observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
                 // snapshot.value is [NSNull null] if the node is empty
                 if ([snapshot.value isKindOfClass:[NSDictionary class]]) {
@@ -135,6 +135,30 @@ describe(@"FireDataIntegration", ^{
                 }
             }];
             [[expectFutureValue(firebaseIndexValue) shouldEventually] beNil];
+        });
+        
+        it(@"does not sync ignored attributes to firebase.", ^{
+            SomeEntity *entity = [NSEntityDescription insertNewObjectForEntityForName:@"SomeEntity" inManagedObjectContext:manager.managedObjectContext];
+            entity.someAttribute = @"entity";
+            entity.attributeToIgnore = @"ignoreThis";
+            [manager saveContext];
+            
+            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity.firebaseKey attribute:@"someAttribute" shouldEqual:@"entity"];
+            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity.firebaseKey attribute:@"attributeToIgnore" shouldEqual:nil];
+        });
+        
+        it(@"does not clear out ignored attributes which are on firebase", ^{
+            [[firebaseRoot childByAppendingPath:@"SomeEntities/12345"] setValue:@{@"someAttribute" : @"1234", @"attributeToIgnore" : @"5678"} withCompletionBlock:nil];
+            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:@"12345" attribute:@"someAttribute" shouldEqual:@"1234"];
+            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:@"12345" attribute:@"attributeToIgnore" shouldEqual:@"5678"];
+            
+            SomeEntity *entity = [NSEntityDescription insertNewObjectForEntityForName:@"SomeEntity" inManagedObjectContext:manager.managedObjectContext];
+            entity.someAttribute = @"entity";
+            entity.firebaseKey = @"12345";
+            [manager saveContext];
+            
+            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:@"12345" attribute:@"someAttribute" shouldEqual:@"entity"];
+            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:@"12345" attribute:@"attributeToIgnore" shouldEqual:@"5678"];
         });
     });
 });
@@ -148,13 +172,13 @@ describe(@"FireDataIntegration", ^{
     return entity;
 }
 
-+ (void)firebase:(Firebase *)firebase entityKey:(NSString *)entityKey attributeShouldEqual:(NSString *)expectedAttributeValue {
++ (void)firebase:(Firebase *)firebase entityKey:(NSString *)entityKey attribute:(NSString *)attribute shouldEqual:(NSString *)expectedAttributeValue {
     id someNonNilValue = @555; // we need this because when using shouldEventually with nil we want to make sure we the variable is not nil initially
     __block id firebaseEntityAttribute = someNonNilValue;
     [firebase observeSingleEventOfType:FEventTypeValue withBlock:^(FDataSnapshot *snapshot) {
         // snapshot.value is [NSNull null] if the node is empty
         if ([snapshot.value isKindOfClass:[NSDictionary class]]) {
-            firebaseEntityAttribute = snapshot.value[entityKey][@"someAttribute"];
+            firebaseEntityAttribute = snapshot.value[entityKey][attribute];
         } else {
             firebaseEntityAttribute = nil;
         }

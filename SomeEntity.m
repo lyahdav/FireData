@@ -10,6 +10,8 @@
 
 @implementation SomeEntity
 
-// Insert code here to add functionality to your managed object subclass
+- (NSArray*)excludedFiredataProperties {
+    return @[@"attributeToIgnore"];
+}
 
 @end
