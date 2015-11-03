@@ -19,7 +19,7 @@
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     FireDataISO8601DateFormatter *dateFormatter = [FireDataISO8601DateFormatter sharedFormatter];
 
-    NSArray *excludedProperties = [self excludedProperties];
+    NSArray *excludedProperties = [self __firedataExcludedProperties];
     for (id property in [[self entity] properties]) {
         NSString *name = [property name];
 
@@ -37,7 +37,9 @@
             id value = [self valueForKey:name];
 
             NSAttributeType attributeType = [attributeDescription attributeType];
-            if ((attributeType == NSDateAttributeType) && ([value isKindOfClass:[NSDate class]]) && (dateFormatter != nil)) {
+            if ([self __firedataHasCustomTransform:@"Firebase" forAttribute:name]) {
+                value = [self __firedataCustomTransformValue:value forAttribute:name type:@"Firebase"];
+            } else if ((attributeType == NSDateAttributeType) && ([value isKindOfClass:[NSDate class]]) && (dateFormatter != nil)) {
                 value = [dateFormatter stringFromDate:value];
             }
 
@@ -78,7 +80,7 @@
 {
     FireDataISO8601DateFormatter *dateFormatter = [FireDataISO8601DateFormatter sharedFormatter];
 
-    NSArray *excludedProperties = [self excludedProperties];
+    NSArray *excludedProperties = [self __firedataExcludedProperties];
     for (NSPropertyDescription *propertyDescription in [[self entity] properties]) {
         NSString *name = [propertyDescription name];
 
@@ -94,7 +96,13 @@
             BOOL hasValueChanged = NO;
 
             NSAttributeType attributeType = [(NSAttributeDescription *)propertyDescription attributeType];
-            if ((attributeType == NSStringAttributeType) && ([value isKindOfClass:[NSNumber class]])) {
+
+            if ([self __firedataHasCustomTransform:@"CoreData" forAttribute:name]) {
+                value = [self __firedataCustomTransformValue:value forAttribute:name type:@"CoreData"];
+                if (value != nil || coreDataValue != nil) {
+                    hasValueChanged = ![value isEqual:coreDataValue];
+                }
+            } else if ((attributeType == NSStringAttributeType) && ([value isKindOfClass:[NSNumber class]])) {
                 value = [value stringValue];
                 if (![coreDataValue isEqualToString:value]) {
                     hasValueChanged = YES;
@@ -176,12 +184,33 @@
     }
 }
 
-- (NSArray *)excludedProperties {
+- (id)__firedataCustomTransformValue:(id)value forAttribute:(NSString *)name type:(NSString *)type {
+    NSString *customTransformName = [self __firedataCustomTransformName:type forAttribute:name];
+    SEL selector = NSSelectorFromString(customTransformName);
+    // See http://stackoverflow.com/questions/7017281/performselector-may-cause-a-leak-because-its-selector-is-unknown
+    id (*transform)(id, SEL, id) = (void *) [self methodForSelector:selector];
+    return transform(self, selector, value);
+}
+
+- (NSArray *)__firedataExcludedProperties {
     NSArray *excludedProperties = @[];
     if ([self respondsToSelector:@selector(excludedFiredataProperties)]) {
         excludedProperties = [self performSelector:@selector(excludedFiredataProperties)];
     }
     return excludedProperties;
+}
+
+- (BOOL)__firedataHasCustomTransform:(NSString *)type forAttribute:(NSString *)name {
+    return [self respondsToSelector:[self __firedataCustomTransformSelector:type forAttribute:name]];
+}
+
+- (SEL)__firedataCustomTransformSelector:(NSString *)type forAttribute:(NSString *)name{
+    return NSSelectorFromString([self __firedataCustomTransformName:type forAttribute:name]);
+}
+
+- (NSString *)__firedataCustomTransformName:(NSString *)type forAttribute:(NSString *)name{
+    NSString *capitalizedName = [NSString stringWithFormat:@"%@%@", [[name capitalizedString] substringToIndex:1], [name substringFromIndex:1]];
+    return [NSString stringWithFormat:@"convert%@From%@Value:", capitalizedName, type];
 }
 
 @end

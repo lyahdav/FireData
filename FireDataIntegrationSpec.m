@@ -3,6 +3,7 @@
 #import "CoreDataManager.h"
 #import "SomeEntity.h"
 #import "SomeOtherEntity.h"
+#import "KWEqualMatcher.h"
 
 SPEC_BEGIN(FireDataIntegrationSpec)
 
@@ -159,6 +160,35 @@ describe(@"FireDataIntegration", ^{
             
             [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:@"12345" attribute:@"someAttribute" shouldEqual:@"entity"];
             [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:@"12345" attribute:@"attributeToIgnore" shouldEqual:@"5678"];
+        });
+
+
+        it(@"uses a custom transformation method when writing to Firebase from CoreData", ^{
+            SomeEntity *entity = (SomeEntity *) [NSEntityDescription insertNewObjectForEntityForName:@"SomeEntity" inManagedObjectContext:manager.managedObjectContext];
+            entity.attributeToTransform = @"value";
+
+            [manager saveContext];
+
+            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity.firebaseKey attribute:@"attributeToTransform" shouldEqual:@"value_transformed"];
+        });
+
+        it(@"uses a custom transformation method when writing to CoreData form Firebase", ^{
+            [[firebaseRoot childByAppendingPath:@"someEntitiesIndex/10"] setValue:@YES withCompletionBlock:nil];
+            [[firebaseRoot childByAppendingPath:@"SomeEntities/10"] setValue:@{@"attributeToTransform" : @"value_transformed"} withCompletionBlock:nil];
+
+            NSString *(^attributeValue)() = ^NSString *(){
+                NSError *error;
+                NSFetchRequest *request = [NSFetchRequest new];
+                NSEntityDescription *entity = [NSEntityDescription entityForName:@"SomeEntity" inManagedObjectContext:manager.managedObjectContext];
+                NSPredicate *predicate = [NSPredicate predicateWithFormat:@"firebaseKey = '10'"];
+                request.predicate = predicate;
+
+                [request setEntity:entity];
+
+                return [[[manager.managedObjectContext executeFetchRequest:request error:&error] firstObject] attributeToTransform];
+            };
+
+            [[expectFutureValue(attributeValue()) shouldEventuallyBeforeTimingOutAfter(10)] equal:@"value"];
         });
     });
 });

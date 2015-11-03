@@ -19,6 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSString *firebaseKey;
 @property (nullable, nonatomic, retain) NSString *someAttribute;
 @property (nullable, nonatomic, retain) NSString *attributeToIgnore;
+@property (nullable, nonatomic, retain) NSString *attributeToTransform;
 @property (nullable, nonatomic, retain) NSSet<NSManagedObject *> *someOtherEntities;
 
 @end

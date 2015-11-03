@@ -89,7 +89,6 @@ SPEC_BEGIN(FireDataSpec)
             [NSFetchRequest stub:@selector(fetchRequestWithEntityName:) andReturn:mockFetchRequest];
             [firebaseRoot simulateChangeForKey:@"foo_@@_bar"];
         });
-
     });
 }
 

@@ -14,4 +14,11 @@
     return @[@"attributeToIgnore"];
 }
 
+- (id)convertAttributeToTransformFromFirebaseValue:(id)value {
+    return [value stringByAppendingString:@"_transformed"];
+}
+
+- (id)convertAttributeToTransformFromCoreDataValue:(id)value {
+    return [value stringByReplacingOccurrencesOfString:@"_transformed" withString:@""];
+}
 @end
