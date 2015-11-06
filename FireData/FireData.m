@@ -348,7 +348,7 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
     Firebase *firebaseRoot = [self firebaseRoot];
     NSAssert(firebaseRoot != nil, @"No firebase root found from linked entities: %@", self.linkedEntities);
     [firebaseRoot updateChildValues:dictionary withCompletionBlock:^(NSError *error, Firebase *ref) {
-        NSAssert(!error, @"%@", error);
+        NSAssert(!error, @"%@. Object is %@", error, dictionary);
     }];
 }
 
