@@ -373,11 +373,18 @@ typedef void (^fcdm_void_managedobjectcontext) (NSManagedObjectContext *context)
 }
 
 + (NSString *)firebaseSyncValueFromCoreDataSyncValue:(NSString *)coreDataSyncValue {
-    return [coreDataSyncValue stringByReplacingOccurrencesOfString:@"." withString:@"_@@_"];
+    return [[coreDataSyncValue stringByReplacingOccurrencesOfString:@"." withString:@"_@@_"]  stringByAddingPercentEncodingWithAllowedCharacters:[self characterSetForSyncIDEncoding]];
 }
 
 + (NSString *)coreDataSyncValueForFirebaseSyncValue:(NSString *)firebaseSyncValue {
+    firebaseSyncValue = [firebaseSyncValue stringByRemovingPercentEncoding];
     return [firebaseSyncValue stringByReplacingOccurrencesOfString:@"_@@_" withString:@"."];
+}
+
++ (NSCharacterSet *)characterSetForSyncIDEncoding {
+    NSMutableCharacterSet *characterSet = [NSCharacterSet URLPathAllowedCharacterSet].mutableCopy;
+    [characterSet removeCharactersInString:@"/"];
+    return characterSet;
 }
 
 -  (Firebase *)firebaseRoot {
