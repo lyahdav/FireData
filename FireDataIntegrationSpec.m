@@ -162,7 +162,6 @@ describe(@"FireDataIntegration", ^{
             [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:@"12345" attribute:@"attributeToIgnore" shouldEqual:@"5678"];
         });
 
-
         it(@"uses a custom transformation method when writing to Firebase from CoreData", ^{
             SomeEntity *entity = (SomeEntity *) [NSEntityDescription insertNewObjectForEntityForName:@"SomeEntity" inManagedObjectContext:manager.managedObjectContext];
             entity.attributeToTransform = @"value";
@@ -189,6 +188,14 @@ describe(@"FireDataIntegration", ^{
             };
 
             [[expectFutureValue(attributeValue()) shouldEventuallyBeforeTimingOutAfter(10)] equal:@"value"];
+        });
+        
+        it(@"can store custom properties in Firebase that are not stored in CoreData", ^{
+            SomeEntity *entity = (SomeEntity *) [NSEntityDescription insertNewObjectForEntityForName:@"SomeEntity" inManagedObjectContext:manager.managedObjectContext];
+            
+            [manager saveContext];
+            
+            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity.firebaseKey attribute:@"computedAttribute" shouldEqual:@"computed_value"];
         });
     });
 });
