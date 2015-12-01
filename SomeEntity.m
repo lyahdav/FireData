@@ -24,7 +24,7 @@
     id valueToTransform = properties[@"attributeToTransform"];
     
     if (valueToTransform) {
-        properties[@"attributeToTransform"] = [valueToTransform stringByReplacingOccurrencesOfString:@"_transformed" withString:@""];
+        properties[@"attributeToTransform" ] = [valueToTransform stringByReplacingOccurrencesOfString:@"_transformed" withString:@""];
     }
 }
 

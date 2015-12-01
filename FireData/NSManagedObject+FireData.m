@@ -20,9 +20,18 @@
     FireDataISO8601DateFormatter *dateFormatter = [FireDataISO8601DateFormatter sharedFormatter];
 
     for (id property in [[self entity] properties]) {
+        properties[[property name]] = [self valueForKey:[property name]];
+    }
+    
+    if ([self respondsToSelector:@selector(convertCoreDataPropertiesToFirebase:)]) {
+        [self performSelector:@selector(convertCoreDataPropertiesToFirebase:) withObject:properties];
+    }
+    
+    for (id property in [[self entity] properties]) {
         NSString *name = [property name];
 
-        if ([name isEqualToString:coreDataKeyAttribute] ||
+        if (properties[name] == nil ||
+            [name isEqualToString:coreDataKeyAttribute] ||
             [name isEqualToString:coreDataDataAttribute]) {
             continue;
         }
@@ -32,7 +41,7 @@
             if ([attributeDescription isTransient]) continue;
 
             NSString *name = [attributeDescription name];
-            id value = [self valueForKey:name];
+            id value = properties[name];
 
             NSAttributeType attributeType = [attributeDescription attributeType];
             if ((attributeType == NSDateAttributeType) && ([value isKindOfClass:[NSDate class]]) && (dateFormatter != nil)) {
@@ -50,14 +59,14 @@
 
             if ([relationshipDescription isToMany]) {
                 NSMutableDictionary *items = [NSMutableDictionary new];
-                for (NSManagedObject *managedObject in [self valueForKey:name]) {
+                for (NSManagedObject *managedObject in properties[name]) {
                     if ([managedObject respondsToSelector:NSSelectorFromString(coreDataKeyAttribute)]) {
                         [items setObject:@true forKey:[FireData firebaseSyncValueFromCoreDataSyncValue:[managedObject valueForKey:coreDataKeyAttribute]]];
                     }
                 }
                 [properties setValue:items forKey:name];
             } else {
-                NSManagedObject *managedObject = [self valueForKey:name];
+                NSManagedObject *managedObject = properties[name];
 
                 NSString *value = [FireData firebaseSyncValueFromCoreDataSyncValue:[managedObject valueForKey:coreDataKeyAttribute]];
                 if (value == nil) {
@@ -69,10 +78,6 @@
         }
     }
 
-    if ([self respondsToSelector:@selector(convertCoreDataPropertiesToFirebase:)]) {
-        [self performSelector:@selector(convertCoreDataPropertiesToFirebase:) withObject:properties];
-    }
-    
     return [NSDictionary dictionaryWithDictionary:properties];
 }
 

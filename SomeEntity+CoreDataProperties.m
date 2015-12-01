@@ -17,6 +17,7 @@
 @dynamic firebaseKey;
 @dynamic someAttribute;
 @dynamic attributeToIgnore;
+@dynamic attributeToTransform;
 @dynamic someOtherEntities;
 
 @end
