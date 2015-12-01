@@ -10,12 +10,15 @@
 
 @implementation SomeEntity
 
+- (NSArray *)excludedFiredataProperties {
+    return @[@"attributeToIgnore"];
+}
+
 - (void)convertCoreDataPropertiesToFirebase:(NSMutableDictionary *)properties {
-    [properties removeObjectForKey:@"attributeToIgnore"];
     properties[@"computedAttribute"] = @"computed_value";
     
     id valueToTransform = properties[@"attributeToTransform"];
-    if (valueToTransform != [NSNull null]) {
+    if (valueToTransform && valueToTransform != [NSNull null]) {
         properties[@"attributeToTransform"] = [valueToTransform stringByAppendingString:@"_transformed"];
     }
 }
@@ -23,7 +26,7 @@
 - (void)convertFirebasePropertiesToCoreData:(NSMutableDictionary *)properties {
     id valueToTransform = properties[@"attributeToTransform"];
     
-    if (valueToTransform) {
+    if (valueToTransform && valueToTransform != [NSNull null]) {
         properties[@"attributeToTransform" ] = [valueToTransform stringByReplacingOccurrencesOfString:@"_transformed" withString:@""];
     }
 }

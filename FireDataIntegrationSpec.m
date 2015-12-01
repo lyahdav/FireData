@@ -148,18 +148,25 @@ describe(@"FireDataIntegration", ^{
             [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:entity.firebaseKey attribute:@"attributeToIgnore" shouldEqual:nil];
         });
         
-        it(@"does not clear out ignored attributes which are on firebase", ^{
-            [[firebaseRoot childByAppendingPath:@"SomeEntities/12345"] setValue:@{@"someAttribute" : @"1234", @"attributeToIgnore" : @"5678"} withCompletionBlock:nil];
-            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:@"12345" attribute:@"someAttribute" shouldEqual:@"1234"];
-            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:@"12345" attribute:@"attributeToIgnore" shouldEqual:@"5678"];
+        it(@"does not sync ignored attributes to CoreData", ^{
+            NSManagedObjectContext *context = manager.managedObjectContext;
+            id (^attributeWasIgnored)() = ^id(){
+                NSError *error;
+                NSFetchRequest *request = [NSFetchRequest new];
+                NSEntityDescription *entity = [NSEntityDescription entityForName:@"SomeEntity" inManagedObjectContext:context];
+                NSPredicate *predicate = [NSPredicate predicateWithFormat:@"firebaseKey = '12345'"];
+                request.predicate = predicate;
+                
+                [request setEntity:entity];
+                
+                id object = [[context executeFetchRequest:request error:&error] firstObject];
+                return @(object && [object attributeToIgnore] == nil && [object someAttribute] != nil);
+            };
             
-            SomeEntity *entity = [NSEntityDescription insertNewObjectForEntityForName:@"SomeEntity" inManagedObjectContext:manager.managedObjectContext];
-            entity.someAttribute = @"entity";
-            entity.firebaseKey = @"12345";
-            [manager saveContext];
+            [[firebaseRoot childByAppendingPath:@"someEntitiesIndex/12345"] setValue:@YES withCompletionBlock:nil];
+            [[firebaseRoot childByAppendingPath:@"SomeEntities/12345"] setValue:@{@"attributeToIgnore" : @"ignoreThis", @"someAttribute": @"attributeValue"} withCompletionBlock:nil];
             
-            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:@"12345" attribute:@"someAttribute" shouldEqual:@"entity"];
-            [self firebase:[firebaseRoot childByAppendingPath:@"SomeEntities"] entityKey:@"12345" attribute:@"attributeToIgnore" shouldEqual:@"5678"];
+            [[expectFutureValue(attributeWasIgnored()) shouldEventually] beTrue];
         });
 
         it(@"uses a custom transformation method when writing to Firebase from CoreData", ^{

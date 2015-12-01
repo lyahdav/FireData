@@ -18,9 +18,13 @@
 {
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     FireDataISO8601DateFormatter *dateFormatter = [FireDataISO8601DateFormatter sharedFormatter];
+    NSArray *excludedProperties = [self __firedataExcludedProperties];
 
     for (id property in [[self entity] properties]) {
-        properties[[property name]] = [self valueForKey:[property name]];
+        NSString *name = [property name];
+        if(![excludedProperties containsObject:name]) {
+            properties[name] = [self valueForKey:name];
+        }
     }
     
     if ([self respondsToSelector:@selector(convertCoreDataPropertiesToFirebase:)]) {
@@ -88,10 +92,12 @@
         [self performSelector:@selector(convertFirebasePropertiesToCoreData:) withObject:keyedValues];
     }
 
+    NSArray *excludedProperties = [self __firedataExcludedProperties];
     for (NSPropertyDescription *propertyDescription in [[self entity] properties]) {
         NSString *name = [propertyDescription name];
 
-        if ([name isEqualToString:coreDataKeyAttribute] ||
+        if ([excludedProperties containsObject:name] ||
+            [name isEqualToString:coreDataKeyAttribute] ||
             [name isEqualToString:coreDataDataAttribute]) {
             continue;
         }
@@ -183,6 +189,14 @@
             [self performSelector:@selector(fireDataWasSyncedFromFirebase)];
         }
     }
+}
+
+- (NSArray *)__firedataExcludedProperties {
+    NSArray *excludedProperties = @[];
+    if ([self respondsToSelector:@selector(excludedFiredataProperties)]) {
+        excludedProperties = [self performSelector:@selector(excludedFiredataProperties)];
+    }
+    return excludedProperties;
 }
 
 @end
