@@ -18,8 +18,8 @@
 {
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     FireDataISO8601DateFormatter *dateFormatter = [FireDataISO8601DateFormatter sharedFormatter];
-    NSArray *excludedProperties = [self __firedataExcludedProperties];
-
+    NSSet *excludedProperties = [self __firedataExcludedProperties];
+    
     for (id property in [[self entity] properties]) {
         NSString *name = [property name];
         if(![excludedProperties containsObject:name]) {
@@ -33,25 +33,25 @@
     
     for (id property in [[self entity] properties]) {
         NSString *name = [property name];
-
-        if (properties[name] == nil ||
+        
+        if ([excludedProperties containsObject:name] ||
             [name isEqualToString:coreDataKeyAttribute] ||
             [name isEqualToString:coreDataDataAttribute]) {
             continue;
         }
-
+        
         if ([property isKindOfClass:[NSAttributeDescription class]]) {
             NSAttributeDescription *attributeDescription = (NSAttributeDescription *)property;
             if ([attributeDescription isTransient]) continue;
-
+            
             NSString *name = [attributeDescription name];
             id value = properties[name];
-
+            
             NSAttributeType attributeType = [attributeDescription attributeType];
             if ((attributeType == NSDateAttributeType) && ([value isKindOfClass:[NSDate class]]) && (dateFormatter != nil)) {
                 value = [dateFormatter stringFromDate:value];
             }
-
+            
             if (value == nil) {
                 [properties setValue:[NSNull null] forKey:name];
             } else {
@@ -60,7 +60,7 @@
         } else if ([property isKindOfClass:[NSRelationshipDescription class]]) {
             NSRelationshipDescription *relationshipDescription = (NSRelationshipDescription *)property;
             NSString *name = [relationshipDescription name];
-
+            
             if ([relationshipDescription isToMany]) {
                 NSMutableDictionary *items = [NSMutableDictionary new];
                 for (NSManagedObject *managedObject in properties[name]) {
@@ -71,7 +71,7 @@
                 [properties setValue:items forKey:name];
             } else {
                 NSManagedObject *managedObject = properties[name];
-
+                
                 NSString *value = [FireData firebaseSyncValueFromCoreDataSyncValue:[managedObject valueForKey:coreDataKeyAttribute]];
                 if (value == nil) {
                     [properties setValue:[NSNull null] forKey:name];
@@ -81,7 +81,7 @@
             }
         }
     }
-
+    
     return [NSDictionary dictionaryWithDictionary:properties];
 }
 
@@ -91,24 +91,24 @@
     if ([self respondsToSelector:@selector(convertFirebasePropertiesToCoreData:)]) {
         [self performSelector:@selector(convertFirebasePropertiesToCoreData:) withObject:keyedValues];
     }
-
+    
     NSArray *excludedProperties = [self __firedataExcludedProperties];
     for (NSPropertyDescription *propertyDescription in [[self entity] properties]) {
         NSString *name = [propertyDescription name];
-
+        
         if ([excludedProperties containsObject:name] ||
             [name isEqualToString:coreDataKeyAttribute] ||
             [name isEqualToString:coreDataDataAttribute]) {
             continue;
         }
-
+        
         if ([propertyDescription isKindOfClass:[NSAttributeDescription class]]) {
             id value = [keyedValues objectForKey:name];
             id coreDataValue = [self valueForKey:name];
             BOOL hasValueChanged = NO;
-
+            
             NSAttributeType attributeType = [(NSAttributeDescription *)propertyDescription attributeType];
-
+            
             if ((attributeType == NSStringAttributeType) && ([value isKindOfClass:[NSNumber class]])) {
                 value = [value stringValue];
                 if (![coreDataValue isEqualToString:value]) {
@@ -138,13 +138,13 @@
                     hasValueChanged = ![value isEqual:coreDataValue];
                 }
             }
-
+            
             if (hasValueChanged) {
                 [self setValue:value forKey:name];
             }
         } else if ([propertyDescription isKindOfClass:[NSRelationshipDescription class]]) {
             NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:[[(NSRelationshipDescription *)propertyDescription destinationEntity] name]];
-
+            
             if ([(NSRelationshipDescription *)propertyDescription isToMany]) {
                 NSArray *identifiers = [[keyedValues objectForKey:name] allKeys];
                 NSMutableSet *items = [self mutableSetValueForKey:name];
@@ -180,7 +180,7 @@
             }
         }
     }
-
+    
     if ([[self changedValues] count] > 0) {
         [self setValue:FirebaseSyncData forKey:coreDataDataAttribute];
         
@@ -191,12 +191,12 @@
     }
 }
 
-- (NSArray *)__firedataExcludedProperties {
+- (NSSet *)__firedataExcludedProperties {
     NSArray *excludedProperties = @[];
     if ([self respondsToSelector:@selector(excludedFiredataProperties)]) {
         excludedProperties = [self performSelector:@selector(excludedFiredataProperties)];
     }
-    return excludedProperties;
+    return [NSSet setWithArray:excludedProperties];
 }
 
 @end
