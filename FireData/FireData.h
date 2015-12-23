@@ -25,7 +25,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <Firebase/Firebase.h>
+#import <FirebaseDatabase/Firebase.h>
 #import <CoreData/CoreData.h>
 
 @interface FireData : NSObject
