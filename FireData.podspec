@@ -11,6 +11,7 @@ Pod::Spec.new do |s|
   s.public_header_files = 'FireData/FireData.h'
   s.frameworks = 'CoreData'
   s.requires_arc = true
-  s.dependency 'Firebase', '~> 2.4'
+  #s.dependency 'Firebase', '~> 2.4'
+  s.dependency 'FirebaseDatabase'
   s.dependency 'ISO8601DateFormatter', '~> 0.6'
 end
